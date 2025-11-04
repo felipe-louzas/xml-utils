@@ -1,7 +1,7 @@
 package com.example.utils.xml.spring;
 
 import com.example.utils.xml.context.XmlContext;
-import com.example.utils.xml.context.XmlContextProperties;
+import com.example.utils.xml.factory.XmlProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * A Spring component responsible for automatically initializing the {@link XmlContext} with the Spring-managed {@link XmlContextProperties}
+ * A Spring component responsible for automatically initializing the {@link XmlContext} with the Spring-managed {@link XmlProperties}
  * bean at application startup.
  */
 @Slf4j
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class XmlContextInitializer {
-	XmlContextProperties properties;
+	XmlProperties properties;
 
 	@PostConstruct
 	public void initialize() {

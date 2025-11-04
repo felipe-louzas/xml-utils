@@ -1,5 +1,6 @@
 package com.example.utils.xml.context;
 
+import com.example.utils.xml.factory.XmlProperties;
 import com.example.utils.xml.formatter.XmlFormatter;
 import com.example.utils.xml.validation.XmlValidator;
 import com.example.utils.xml.xpath.XPathEvaluator;
@@ -48,7 +49,7 @@ public final class XmlContext {
      *
      * @param services The services instance to use globally.
      */
-    public static void init(XmlContextProperties services) {
+    public static void init(XmlProperties services) {
         if (servicesHolder.compareAndSet(null, services)) {
             log.info("XmlContext manually initialized.");
         } else {
@@ -87,7 +88,7 @@ public final class XmlContext {
 		return null;
 	}
 
-	public static void initDefaultContext(XmlContextProperties properties) {}
+	public static void initDefaultContext(XmlProperties properties) {}
 
 
 

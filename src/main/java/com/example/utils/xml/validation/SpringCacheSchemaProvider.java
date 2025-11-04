@@ -1,6 +1,6 @@
 package com.example.utils.xml.validation;
 
-import com.example.utils.xml.context.XmlContextProperties;
+import com.example.utils.xml.factory.XmlProperties;
 import com.example.xml.exceptions.XmlRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +32,9 @@ import java.net.URL;
 public class SpringCacheSchemaProvider implements SchemaService {
 
     private final SchemaFactory schemaFactory;
-    private final XmlContextProperties properties;
+    private final XmlProperties properties;
 
-    public SpringCacheSchemaProvider(XmlContextProperties properties) {
+    public SpringCacheSchemaProvider(XmlProperties properties) {
         this.properties = properties;
         this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
