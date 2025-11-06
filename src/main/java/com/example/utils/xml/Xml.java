@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.example.utils.xml.context.XmlContext;
 import com.example.utils.xml.formatter.XmlFormatter;
-import com.example.utils.xml.loader.BasicXmlLoader;
+import com.example.utils.xml.loader.DefaultXmlLoader;
 import com.example.utils.xml.loader.XmlLoader;
 import com.example.utils.xml.validation.XmlValidator;
 import com.example.utils.xml.xpath.XPathEvaluator;
@@ -40,38 +40,31 @@ public final class Xml {
 	/* ------ Convenience loader delegates  ------ */
 
 	public static Xml load(Document document) {
-		return defaultLoader().fromDocument(document);
+		return loader().fromDocument(document);
 	}
 
 	public static Xml load(CharSequence xmlContent) {
-		return defaultLoader().fromString(xmlContent);
+		return loader().fromString(xmlContent);
 	}
 
 	public static Xml load(File file) {
-		return defaultLoader().fromFile(file);
+		return loader().fromFile(file);
 	}
 
 	public static Xml load(Path path) {
-		return defaultLoader().fromPath(path);
+		return loader().fromPath(path);
 	}
 
 	public static Xml load(InputStream inputStream) {
-		return defaultLoader().fromInputStream(inputStream);
+		return loader().fromInputStream(inputStream);
 	}
 
 	public static Xml load(Reader reader) {
-		return defaultLoader().fromReader(reader);
+		return loader().fromReader(reader);
 	}
-
-	private static XmlLoader defaultLoader() {
-		// Retrieves a pre-configured default loader instance
-		return BasicXmlLoader.getDefaultInstance();
-	}
-
-	/* ------ Custom Loader  ------ */
 
 	public static XmlLoader loader() {
-		return new BasicXmlLoader();
+		return DefaultXmlLoader.getDefaultInstance();
 	}
 
 	/* ------ Instance methods  ------ */

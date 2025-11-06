@@ -3,12 +3,11 @@ package com.example.utils.xml.loader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.file.Path;
 
-import javax.xml.transform.Source;
-
 import com.example.utils.xml.Xml;
+import com.example.utils.xml.config.XmlConfig;
+import com.example.utils.xml.factory.XmlFactory;
 import org.w3c.dom.Document;
 
 public interface XmlLoader {
@@ -22,9 +21,11 @@ public interface XmlLoader {
 
 	Xml fromReader(Reader reader);
 
-	Xml fromUrl(URL url);
-
-	Xml fromSource(Source source);
-
 	Xml fromDocument(Document document);
+
+	XmlLoader withFactory(XmlFactory xmlFactory);
+
+	default XmlLoader withConfig(XmlConfig config) {
+		return withFactory(XmlFactory.withConfig(config));
+	}
 }

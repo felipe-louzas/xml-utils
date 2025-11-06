@@ -1,6 +1,8 @@
 package com.example.utils.xml.config;
 
 import com.example.utils.xml.factory.XmlFactory;
+import com.example.utils.xml.parser.DocumentBuilderXmlParser;
+import com.example.utils.xml.parser.PoolingXmlParser;
 import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,13 @@ public class XmlFactoryInitializer {
 
 	@PostConstruct
 	public void initialize() {
-		log.debug("Inicializando XmlFactory com o XmlConfig gerenciado pelo Spring...");
-		XmlFactory.initDefaultInstance(config);
+		log.debug("Inicializando XmlFactory com configurações gerenciadas pelo Spring...");
+
+		XmlFactory.setDefaultInstance(new XmlFactory(
+			config,
+			config.getPool().getDocumentBuilder().isEnabled() ?
+				PoolingXmlParser::new :
+				DocumentBuilderXmlParser::new
+		));
 	}
 }

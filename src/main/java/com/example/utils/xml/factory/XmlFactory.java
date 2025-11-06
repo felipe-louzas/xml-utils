@@ -1,21 +1,23 @@
 package com.example.utils.xml.factory;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import com.example.utils.xml.config.XmlConfig;
-import com.example.utils.xml.exceptions.XmlException;
+import com.example.utils.xml.parser.DocumentBuilderXmlParser;
+import com.example.utils.xml.parser.XmlParser;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,55 +31,58 @@ import org.apache.commons.lang3.function.FailableBiConsumer;
  */
 @Slf4j
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class XmlFactory {
 
 	/* Instância padrão compartilhada (thread-safe). */
-	private static volatile XmlFactory defaultInstance;
+	private static final AtomicReference<XmlFactory> DEFAULT_INSTANCE = new AtomicReference<>(null);
 
-	final XmlConfig properties;
+	XmlConfig config;
+	XmlParser.Builder parserBuilder;
 
-	/* Lazy-init factories */
-	DocumentBuilderFactory documentBuilderFactory;
+	/* Lazy-init thread-safe services */
+	@NonFinal
+	XmlParser parser;
+
+	@NonFinal
 	SchemaFactory schemaFactory;
+
+	@NonFinal
 	XPathFactory xpathFactory;
+
+	@NonFinal
 	TransformerFactory transformerFactory;
 
 	/**
 	 * Retorna a instância padrão, inicializando-a se necessário com configurações padrão.
 	 */
 	public static XmlFactory getDefaultInstance() {
-		return ObjectUtils.getIfNull(defaultInstance, () -> initDefaultInstance(XmlConfig.builder().build()));
+		if (DEFAULT_INSTANCE.get() == null) {
+			val defaultConfig = XmlConfig.builder().build();
+			setDefaultInstance(XmlFactory.withConfig(defaultConfig));
+		}
+		return DEFAULT_INSTANCE.get();
 	}
 
 	/**
 	 * Inicializa explicitamente a instância padrão com as propriedades fornecidas.
 	 */
-	@Synchronized
-	public static XmlFactory initDefaultInstance(@NonNull XmlConfig props) {
-		return ObjectUtils.getIfNull(defaultInstance, () -> {
-			log.debug("Inicializando instância padrão dos factories XML com configuração: {}", props);
-			return new XmlFactory(props);
-		});
+	public static void setDefaultInstance(@NonNull XmlFactory factory) {
+		DEFAULT_INSTANCE.compareAndSet(null, factory);
 	}
 
-	public XPath newXPath() {
-		return xpathFactory.newXPath();
+	/**
+	 * Cria uma nova instância independente de XmlFactory com as propriedades fornecidas (não afeta a instância padrão).
+	 */
+	public static XmlFactory withConfig(@NonNull XmlConfig props) {
+		return new XmlFactory(props, DocumentBuilderXmlParser::new);
 	}
 
-	public Schema newSchema() {
-		try {
-			return schemaFactory.newSchema();
-		} catch (Exception ex) {
-			throw new XmlException("Erro ao criar instância de Schema XML.", ex);
-		}
-	}
+	// ---- Use factory resources ---
 
-	// ---- Lazy init methods ----
-
-	private DocumentBuilderFactory getDocumentBuilderFactory() {
-		return ObjectUtils.getIfNull(documentBuilderFactory, this::initDocumentBuilderFactory);
+	public XmlParser getParser() {
+		return ObjectUtils.getIfNull(parser, this::initXmlParser);
 	}
 
 	private SchemaFactory getSchemaFactory() {
@@ -92,15 +97,16 @@ public class XmlFactory {
 		return ObjectUtils.getIfNull(transformerFactory, this::initTransformerFactory);
 	}
 
-	// ---- Init methods (Synchronized para garantir que apenas um thread inicialize o factory) ----
+
+	// ---- Lazy init methods ----
 
 	@Synchronized
-	private DocumentBuilderFactory initDocumentBuilderFactory() {
-		if (documentBuilderFactory == null) {
-			val parserConfig = properties.getParser();
-			val securityConfig = properties.getSecurity();
+	private XmlParser initXmlParser() {
+		if (parser == null) {
+			val parserConfig = config.getParser();
+			val securityConfig = config.getSecurity();
 
-			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			val documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			documentBuilderFactory.setNamespaceAware(parserConfig.isNamespaceAware());
 			documentBuilderFactory.setCoalescing(parserConfig.isCoalescing());
 			documentBuilderFactory.setExpandEntityReferences(parserConfig.isExpandEntityReferences());
@@ -118,15 +124,17 @@ public class XmlFactory {
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_DTD, securityConfig.isAllowExternalEntities());
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_GENERAL_ENTITIES, securityConfig.isAllowExternalEntities());
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_PARAMETER_ENTITIES, securityConfig.isAllowExternalEntities());
+
+			parser = parserBuilder.build(documentBuilderFactory);
 		}
 
-		return documentBuilderFactory;
+		return parser;
 	}
 
 	@Synchronized
 	private SchemaFactory initSchemaFactory() {
 		if (schemaFactory == null) {
-			val securityConfig = properties.getSecurity();
+			val securityConfig = config.getSecurity();
 
 			schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			tryQuietly(schemaFactory::setFeature, XMLConstants.FEATURE_SECURE_PROCESSING, securityConfig.isSecureProcessing());
@@ -141,7 +149,7 @@ public class XmlFactory {
 	@Synchronized
 	private XPathFactory initXPathFactory() {
 		if (xpathFactory == null) {
-			val securityConfig = properties.getSecurity();
+			val securityConfig = config.getSecurity();
 
 			xpathFactory = XPathFactory.newInstance();
 			tryQuietly(xpathFactory::setFeature, XMLConstants.FEATURE_SECURE_PROCESSING, securityConfig.isSecureProcessing());
@@ -149,10 +157,12 @@ public class XmlFactory {
 		return xpathFactory;
 	}
 
+	// ---- Init methods (Synchronized para garantir que apenas um thread inicialize o factory) ----
+
 	@Synchronized
 	private TransformerFactory initTransformerFactory() {
 		if (transformerFactory == null) {
-			val securityConfig = properties.getSecurity();
+			val securityConfig = config.getSecurity();
 
 			transformerFactory = TransformerFactory.newInstance();
 			tryQuietly(transformerFactory::setFeature, XMLConstants.FEATURE_SECURE_PROCESSING, securityConfig.isSecureProcessing());

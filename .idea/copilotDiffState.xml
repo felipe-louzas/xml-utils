@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/src/main/java/com/example/utils/pool/monitoring/PoolMetricsCollector.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/main/java/com/example/utils/pool/monitoring/PoolMetricsCollector.java" />
+              <option name="updatedContent" value="package com.example.utils.pool.monitoring;&#10;&#10;import java.util.List;&#10;import java.util.stream.Collectors;&#10;&#10;import com.example.utils.pool.PoolManager;&#10;import com.example.utils.pool.provider.commons.Commons2Pool;&#10;import lombok.RequiredArgsConstructor;&#10;import lombok.extern.slf4j.Slf4j;&#10;&#10;/** Collects metrics from all registered pools */&#10;@Slf4j&#10;@RequiredArgsConstructor&#10;public class PoolMetricsCollector {&#10;&#9;final PoolManager manager;&#10;&#10;&#9;public List&lt;PoolMetrics&gt; snapshot() {&#10;&#9;&#9;return manager.all().stream().map(pool -&gt; {&#10;&#9;&#9;&#9;if (pool instanceof Commons2Pool&lt;?&gt; commons) {&#10;&#9;&#9;&#9;&#9;return new PoolMetrics(&#10;&#9;&#9;&#9;&#9;&#9;commons.getName(),&#10;&#9;&#9;&#9;&#9;&#9;commons.getBorrowedCount(),&#10;&#9;&#9;&#9;&#9;&#9;commons.getIdleCount(),&#10;&#9;&#9;&#9;&#9;&#9;commons.getConfig().getMaxTotal(),&#10;&#9;&#9;&#9;&#9;&#9;commons.getConfig().getMaxIdle(),&#10;&#9;&#9;&#9;&#9;&#9;commons.getConfig().getMinIdle()&#10;&#9;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;return new PoolMetrics(pool.getName(), -1, -1, -1, -1, -1);&#10;&#9;&#9;}).collect(Collectors.toList());&#10;&#9;}&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
