@@ -3,6 +3,7 @@ package com.example.utils.pool.actuator;
 import java.util.Map;
 
 import com.example.utils.pool.metrics.PoolMetrics;
+import com.example.utils.pool.metrics.PoolMetricsCollector;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

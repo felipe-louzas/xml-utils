@@ -1,8 +1,8 @@
 package com.example.utils.pool.config;
 
-import com.example.utils.pool.actuator.PoolMetricsCollector;
 import com.example.utils.pool.actuator.PoolsEndpoint;
 import com.example.utils.pool.manager.PoolManager;
+import com.example.utils.pool.metrics.PoolMetricsCollector;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;

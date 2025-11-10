@@ -22,11 +22,10 @@ public interface XmlConfig {
 	 */
 	CacheConfig getCache();
 
-// TODO:
-//	/**
-//	 * @return Configurações de object pool para componentes não thread-safe.
-//	 */
-//	PoolConfig getPool();
+	/**
+	 * @return Configurações de object pool para componentes não thread-safe.
+	 */
+	PoolConfig getPool();
 
 	/**
 	 * @return Configurações de formatação e saída XML.

@@ -16,14 +16,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class PoolManager {
+public class PoolManager implements AutoCloseable {
 	Map<String, Pool<?>> pools = new ConcurrentHashMap<>();
 
 	public <T> void register(String name, Pool<T> pool) {
 		if (pools.putIfAbsent(name, pool) != null) {
 			throw new PoolException("Pool with name '" + name + "' already registered");
 		}
-		log.info("Registered pool '{}': {}", name, pool.getClass().getSimpleName());
+		log.debug("Registered pool '{}' ({}) with PoolManager", name, pool.getClass().getSimpleName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -35,8 +35,10 @@ public class PoolManager {
 		return Collections.unmodifiableCollection(pools.values());
 	}
 
-	public void closeAll() {
+	@Override
+	public void close() {
 		pools.forEach((name, pool) -> pool.close());
+		pools.clear();
 	}
 
 	public boolean hasPool(String poolName) {

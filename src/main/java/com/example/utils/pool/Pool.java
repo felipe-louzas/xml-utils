@@ -4,6 +4,7 @@ import com.example.utils.pool.exceptions.PoolException;
 import com.example.utils.pool.metrics.PoolMetrics;
 import lombok.val;
 import org.apache.commons.lang3.function.FailableConsumer;
+import org.apache.commons.lang3.function.FailableFunction;
 
 /**
  * Generic pool abstraction used by application code.
@@ -14,10 +15,10 @@ public interface Pool<T> {
 	/**
 	 * Borrow a handle that wraps a pooled instance. The handle implements AutoCloseable so callers can use try-with-resources.
 	 *
-	 * @return A {@link Pool.Handle} wrapping the object.
+	 * @return A {@link Pool.Lease} wrapping the object.
 	 * @throws PoolException if an object cannot be borrowed.
 	 */
-	Handle<T> borrow() throws PoolException;
+	Lease<T> borrow() throws PoolException;
 
 	/**
 	 * Convenience method to borrow an object, use it, and return it to the pool.
@@ -26,8 +27,14 @@ public interface Pool<T> {
 	 * @throws PoolException if an object cannot be borrowed.
 	 */
 	default <E extends Exception> void use(FailableConsumer<T, E> consumer) throws E, PoolException {
-		try (val handle = borrow()) {
-			consumer.accept(handle.get());
+		try (val lease = borrow()) {
+			consumer.accept(lease.get());
+		}
+	}
+
+	default <R, E extends Exception> R use(FailableFunction<T, R, E> function) throws E, PoolException {
+		try (val lease = borrow()) {
+			return function.apply(lease.get());
 		}
 	}
 
@@ -51,11 +58,18 @@ public interface Pool<T> {
 	void close();
 
 	/**
+	 * Check if the pool has been closed.
+	 *
+	 * @return true if the pool is closed, false otherwise.
+	 */
+	boolean isClosed();
+
+	/**
 	 * A handle for a borrowed object from a {@link Pool}. Implements {@link AutoCloseable} for use in try-with-resources statements.
 	 *
 	 * @param <T> The type of object being wrapped.
 	 */
-	interface Handle<T> extends AutoCloseable {
+	interface Lease<T> extends AutoCloseable {
 		/**
 		 * Return the pooled object instance for use.
 		 *

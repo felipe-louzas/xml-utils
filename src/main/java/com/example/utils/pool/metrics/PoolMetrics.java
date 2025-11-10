@@ -1,6 +1,6 @@
 package com.example.utils.pool.metrics;
 
-import com.example.utils.pool.config.PoolProperties;
+import com.example.utils.pool.beans.PoolProperties;
 import lombok.Builder;
 import lombok.Value;
 

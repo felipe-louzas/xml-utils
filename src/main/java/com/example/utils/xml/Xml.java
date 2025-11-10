@@ -3,22 +3,17 @@ package com.example.utils.xml;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.file.Path;
-import java.util.List;
 
-import com.example.utils.xml.context.XmlContext;
-import com.example.utils.xml.formatter.XmlFormatter;
-import com.example.utils.xml.loader.DefaultXmlLoader;
-import com.example.utils.xml.loader.XmlLoader;
-import com.example.utils.xml.validation.XmlValidator;
-import com.example.utils.xml.xpath.XPathEvaluator;
+import com.example.utils.xml.config.XmlConfig;
+import com.example.utils.xml.providers.XmlProviders;
+import com.example.utils.xml.providers.document.XmlDocument;
+import com.example.utils.xml.providers.loader.XmlLoader;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * The main entry point for the XML utility library.
@@ -30,99 +25,65 @@ import org.w3c.dom.Node;
  * object. However, the static methods used to create {@link Xml} instances are thread-safe.
  *
  */
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class Xml {
 
-	/* The context holding the document and related services. Not thread-safe! */
-	XmlContext context;
+	/* ------ Initialize with custom config  ------ */
+
+	public static void initialize(XmlConfig config) {
+		log.debug("Inicializando provedores padrão do XML Utils com configuração personalizada...");
+		XmlProviders.initializeProviders(() -> XmlProviders.of(config));
+	}
+
+	public static XmlProviders config(XmlConfig config) {
+		return XmlProviders.of(config);
+	}
 
 	/* ------ Convenience loader delegates  ------ */
 
-	public static Xml load(Document document) {
+	public static XmlDocument load(Document document) {
 		return loader().fromDocument(document);
 	}
 
-	public static Xml load(CharSequence xmlContent) {
+	public static XmlDocument load(CharSequence xmlContent) {
 		return loader().fromString(xmlContent);
 	}
 
-	public static Xml load(File file) {
+	public static XmlDocument load(File file) {
 		return loader().fromFile(file);
 	}
 
-	public static Xml load(Path path) {
+	public static XmlDocument load(Path path) {
 		return loader().fromPath(path);
 	}
 
-	public static Xml load(InputStream inputStream) {
+	public static XmlDocument load(InputStream inputStream) {
 		return loader().fromInputStream(inputStream);
 	}
 
-	public static Xml load(Reader reader) {
+	public static XmlDocument load(Reader reader) {
 		return loader().fromReader(reader);
 	}
 
 	public static XmlLoader loader() {
-		return DefaultXmlLoader.getDefaultInstance();
+		return XmlProviders.getDefaultProviders().getXmlLoader();
 	}
 
-	/* ------ Instance methods  ------ */
-
-	public Document getDocument() {
-		return context.getDocument();
-	}
-
-	/* ------ XPath Evaluation  ------ */
-
-	public String getStringByXPath(String expression) {
-		return xpath().evaluateAsString(expression);
-	}
-
-	public Boolean getBooleanByXPath(String expression) {
-		return xpath().evaluateAsBoolean(expression);
-	}
-
-	public Double getDoubleByXPath(String expression) {
-		return xpath().evaluateAsDouble(expression);
-	}
-
-	public BigDecimal getDecimalByXPath(String expression) {
-		return xpath().evaluateAsDecimal(expression);
-	}
-
-	public BigInteger getIntegerByXPath(String expression) {
-		return xpath().evaluateAsInteger(expression);
-	}
-
-	public Long getLongByXPath(String expression) {
-		return xpath().evaluateAsLong(expression);
-	}
-
-	public Integer getIntByXPath(String expression) {
-		return xpath().evaluateAsInt(expression);
-	}
-
-	public Node getNodeByXPath(String expression) {
-		return xpath().evaluateAsNode(expression);
-	}
-
-	public List<Node> getNodesByXPath(String expression) {
-		return xpath().evaluateAsListOfNodes(expression);
-	}
-
-	public XPathEvaluator xpath() {
-		return context.getXPathEvaluator();
+	public static XmlLoader loader(XmlConfig config) {
+		return config(config).getXmlLoader();
 	}
 
 	/* ------ Validation  ------ */
-
+	/*
 	public XmlValidator validator() {
 		return context.getXmlValidator();
 	}
+	*/
 
 	/* ------ Formatting  ------ */
-
+	/*
 	public String toFormattedString() {
 		return formatter().toString();
 	}
@@ -135,4 +96,5 @@ public final class Xml {
 	public XmlFormatter formatter() {
 		return context.getXmlFormatter();
 	}
+	*/
 }

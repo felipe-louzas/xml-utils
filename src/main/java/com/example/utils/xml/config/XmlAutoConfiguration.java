@@ -1,5 +1,12 @@
 package com.example.utils.xml.config;
 
+import com.example.utils.xml.config.constants.ConfigKeys;
+import com.example.utils.xml.providers.factory.DefaultXmlFactory;
+import com.example.utils.xml.providers.factory.XmlFactory;
+import com.example.utils.xml.providers.loader.DefaultXmlLoader;
+import com.example.utils.xml.providers.loader.XmlLoader;
+import com.example.utils.xml.providers.parser.DocumentBuilderProvider;
+import com.example.utils.xml.providers.parser.FactoryDocumentBuilderProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,8 +24,26 @@ import org.springframework.context.annotation.Configuration;
 public class XmlAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
-	@ConfigurationProperties(prefix = "utils.xml")
-	public DefaultXmlConfig xmlConfig() {
+	@ConfigurationProperties(prefix = ConfigKeys.PROP_PREFIX)
+	public XmlConfig xmlConfig() {
 		return new DefaultXmlConfig();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public XmlFactory xmlFactory(XmlConfig xmlConfig) {
+		return new DefaultXmlFactory(xmlConfig);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public XmlLoader xmlLoader(DocumentBuilderProvider provider) {
+		return new DefaultXmlLoader(provider);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public DocumentBuilderProvider documentBuilderProvider(XmlFactory factory) {
+		return new FactoryDocumentBuilderProvider(factory);
 	}
 }

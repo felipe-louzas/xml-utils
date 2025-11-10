@@ -79,13 +79,11 @@ public class DefaultXmlConfig implements XmlConfig {
 		ComponentCacheConfig schema = ComponentCacheConfig.builder().cacheName(DEFAULT_SCHEMA_CACHE_NAME).build();
 
 		public static class CacheConfigBuilder {
-			public CacheConfigBuilder xpath(
-				Function<ComponentCacheConfig.ComponentCacheConfigBuilder, ComponentCacheConfig.ComponentCacheConfigBuilder> configurer) {
+			public CacheConfigBuilder xpathConfig(Function<ComponentCacheConfig.ComponentCacheConfigBuilder, ComponentCacheConfig.ComponentCacheConfigBuilder> configurer) {
 				return xpath(configurer.apply(ComponentCacheConfig.builder().cacheName(DEFAULT_XPATH_CACHE_NAME)).build());
 			}
 
-			public CacheConfigBuilder schema(
-				Function<ComponentCacheConfig.ComponentCacheConfigBuilder, ComponentCacheConfig.ComponentCacheConfigBuilder> configurer) {
+			public CacheConfigBuilder schemaConfig(Function<ComponentCacheConfig.ComponentCacheConfigBuilder, ComponentCacheConfig.ComponentCacheConfigBuilder> configurer) {
 				return schema(configurer.apply(ComponentCacheConfig.builder().cacheName(DEFAULT_SCHEMA_CACHE_NAME)).build());
 			}
 		}
@@ -117,18 +115,15 @@ public class DefaultXmlConfig implements XmlConfig {
 		ComponentPoolConfig transformer = ComponentPoolConfig.builder().build();
 
 		public static class PoolConfigBuilder {
-			public PoolConfigBuilder documentBuilder(
-				Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
+			public PoolConfigBuilder documentBuilderConfig(Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
 				return documentBuilder(configurer.apply(ComponentPoolConfig.builder()).build());
 			}
 
-			public PoolConfigBuilder validator(
-				Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
+			public PoolConfigBuilder validatorConfig(Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
 				return validator(configurer.apply(ComponentPoolConfig.builder()).build());
 			}
 
-			public PoolConfigBuilder transformer(
-				Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
+			public PoolConfigBuilder transformerConfig(Function<ComponentPoolConfig.ComponentPoolConfigBuilder, ComponentPoolConfig.ComponentPoolConfigBuilder> configurer) {
 				return transformer(configurer.apply(ComponentPoolConfig.builder()).build());
 			}
 		}
@@ -238,35 +233,35 @@ public class DefaultXmlConfig implements XmlConfig {
 
 	public static class DefaultXmlConfigBuilder {
 
-		public DefaultXmlConfigBuilder parser(Function<ParserConfig.ParserConfigBuilder, ParserConfig.ParserConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder parserConfig(Function<ParserConfig.ParserConfigBuilder, ParserConfig.ParserConfigBuilder> configurer) {
 			return parser(configurer.apply(ParserConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder cache(Function<CacheConfig.CacheConfigBuilder, CacheConfig.CacheConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder cacheConfig(Function<CacheConfig.CacheConfigBuilder, CacheConfig.CacheConfigBuilder> configurer) {
 			return cache(configurer.apply(CacheConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder pool(Function<PoolConfig.PoolConfigBuilder, PoolConfig.PoolConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder poolConfig(Function<PoolConfig.PoolConfigBuilder, PoolConfig.PoolConfigBuilder> configurer) {
 			return pool(configurer.apply(PoolConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder formatter(Function<FormatterConfig.FormatterConfigBuilder, FormatterConfig.FormatterConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder formatterConfig(Function<FormatterConfig.FormatterConfigBuilder, FormatterConfig.FormatterConfigBuilder> configurer) {
 			return formatter(configurer.apply(FormatterConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder transformer(Function<TransformerConfig.TransformerConfigBuilder, TransformerConfig.TransformerConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder transformerConfig(Function<TransformerConfig.TransformerConfigBuilder, TransformerConfig.TransformerConfigBuilder> configurer) {
 			return transformer(configurer.apply(TransformerConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder security(Function<SecurityConfig.SecurityConfigBuilder, SecurityConfig.SecurityConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder securityConfig(Function<SecurityConfig.SecurityConfigBuilder, SecurityConfig.SecurityConfigBuilder> configurer) {
 			return security(configurer.apply(SecurityConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder validation(Function<ValidationConfig.ValidationConfigBuilder, ValidationConfig.ValidationConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder validationConfig(Function<ValidationConfig.ValidationConfigBuilder, ValidationConfig.ValidationConfigBuilder> configurer) {
 			return validation(configurer.apply(ValidationConfig.builder()).build());
 		}
 
-		public DefaultXmlConfigBuilder xpath(Function<XPathConfig.XPathConfigBuilder, XPathConfig.XPathConfigBuilder> configurer) {
+		public DefaultXmlConfigBuilder xpathConfig(Function<XPathConfig.XPathConfigBuilder, XPathConfig.XPathConfigBuilder> configurer) {
 			return xpath(configurer.apply(XPathConfig.builder()).build());
 		}
 	}
