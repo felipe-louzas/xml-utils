@@ -1,7 +1,6 @@
-package com.example.utils.pool
+package com.example.utils.pool.manager
 
 import com.example.utils.pool.beans.PoolProperties
-import com.example.utils.pool.manager.PoolManager
 import com.example.utils.pool.metrics.PoolMetrics
 import com.example.utils.pool.providers.adapters.AbstractPoolAdapter
 import spock.lang.Specification

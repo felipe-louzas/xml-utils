@@ -3,9 +3,13 @@ package com.example.utils.pool.providers.commons;
 import com.example.utils.pool.PoolObjectFactory;
 import com.example.utils.pool.providers.PoolProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Fallback;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 @ConditionalOnClass(PoolObjectFactory.class)
@@ -13,14 +17,16 @@ public class Commons2Config {
 	private static final String PROVIDER_GENERIC_OBJECT_POOL = "commons-pool2";
 	private static final String PROVIDER_SOFT_REF_OBJECT_POOL = "commons-pool2-soft";
 
-	@Bean
-	@ConditionalOnProperty(name = PoolProvider.PROP_PROVIDER_NAME, havingValue = PROVIDER_GENERIC_OBJECT_POOL)
+	@Lazy
+	@Primary
+	@Bean(PoolProvider.PROP_PROVIDER_NAME_PREFIX + PROVIDER_GENERIC_OBJECT_POOL)
 	public PoolProvider genericObjectPoolProvider() {
 		return GenericObjectPoolAdapter::new;
 	}
 
-	@Bean
-	@ConditionalOnProperty(name = PoolProvider.PROP_PROVIDER_NAME, havingValue = PROVIDER_SOFT_REF_OBJECT_POOL)
+	@Lazy
+	@Fallback
+	@Bean(PoolProvider.PROP_PROVIDER_NAME_PREFIX + PROVIDER_SOFT_REF_OBJECT_POOL)
 	public PoolProvider softReferenceObjectPoolProvider() {
 		return SoftReferencePoolAdapter::new;
 	}

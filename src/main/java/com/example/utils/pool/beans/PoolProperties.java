@@ -18,6 +18,11 @@ import org.apache.commons.lang3.ObjectUtils;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PoolProperties {
 	/**
+	 * The provider to use for this pool.
+	 */
+	String provider;
+
+	/**
 	 * The maximum number of active objects that can be allocated from this pool at the same time.
 	 */
 	Integer maxTotal;
@@ -59,6 +64,7 @@ public class PoolProperties {
 
 	public static PoolProperties getDefaults() {
 		return new PoolProperties(
+			null,
 			Runtime.getRuntime().availableProcessors() * 4,
 			Runtime.getRuntime().availableProcessors(),
 			0,

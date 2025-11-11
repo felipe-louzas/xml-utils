@@ -9,6 +9,7 @@ import com.example.utils.pool.providers.adapters.AbstractPoolAdapter
 import com.example.utils.pool.providers.adapters.PoolObjectFactoryAdapter
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Fallback
 
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class TestPoolProviderConfig {
 
     @Bean
+    @Fallback
     PoolProvider poolProvider() {
         return new TestProvider()
     }
@@ -59,7 +61,7 @@ class TestPoolProviderConfig {
                     waiters.decrementAndGet()
                 }
             }
-
+            factory.validate(obj)
             return obj;
         }
 

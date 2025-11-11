@@ -38,7 +38,7 @@ class PoolsEndpointIntegrationSpec extends Specification {
         def result = endpoint.pools()
 
         then:
-        manager.size() == 2
+        manager.size() == 4
         result instanceof Map
         result.containsKey('first-pool')
         result.containsKey('second-pool')
@@ -48,7 +48,7 @@ class PoolsEndpointIntegrationSpec extends Specification {
 
         then:
         metrics1.numActive == 2
-        metrics1.numIdle == 0
+        metrics1.numIdle == 1
         metrics1.createdCount == 3
         metrics1.borrowedCount == 3
         metrics1.returnedCount == 1

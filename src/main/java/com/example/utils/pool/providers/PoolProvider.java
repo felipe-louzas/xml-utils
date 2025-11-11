@@ -6,7 +6,7 @@ import com.example.utils.pool.beans.PoolProperties;
 
 @FunctionalInterface
 public interface PoolProvider {
-	String PROP_PROVIDER_NAME = "pools.provider";
+	String PROP_PROVIDER_NAME_PREFIX = "pools.provider.";
 
 	<T> Pool<T> createPool(String poolName, PoolProperties props, PoolObjectFactory<T> factory);
 }

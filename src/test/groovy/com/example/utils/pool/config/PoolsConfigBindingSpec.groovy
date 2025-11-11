@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 
 @EnableConfigurationProperties
-@SpringBootTest(classes = [PoolConfigMap], properties = [
+@SpringBootTest(classes = [PoolManagerConfig], properties = [
         'pools.config.default.min-idle=2',
         'pools.config.test-pool.max-total=7',
         'pools.config.test-pool.max-idle=3',

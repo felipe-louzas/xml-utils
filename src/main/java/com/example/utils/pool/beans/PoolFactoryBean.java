@@ -14,6 +14,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,15 +24,11 @@ public class PoolFactoryBean<T> implements FactoryBean<Pool<T>>, ApplicationCont
 	final String poolBeanName;
 	final PoolObjectFactory<T> factory;
 
-	PoolProvider provider;
-	PoolManager manager;
-	PoolConfigMap configMap;
+	ApplicationContext ctx;
 
 	@Override
 	public void setApplicationContext(@NonNull ApplicationContext ctx) {
-		this.provider = ctx.getBean(PoolProvider.class);
-		this.manager = ctx.getBean(PoolManager.class);
-		this.configMap = ctx.getBean(PoolConfigMap.class);
+		this.ctx = ctx;
 	}
 
 	@Override
@@ -42,6 +39,7 @@ public class PoolFactoryBean<T> implements FactoryBean<Pool<T>>, ApplicationCont
 		if (pool == null) return null;
 
 		try {
+			val manager = ctx.getBean(PoolManager.class);
 			manager.register(poolName, pool);
 			return pool;
 		} catch (Exception ex) {
@@ -54,12 +52,24 @@ public class PoolFactoryBean<T> implements FactoryBean<Pool<T>>, ApplicationCont
 	private Pool<T> createPool(String poolName) {
 		try {
 			log.debug("Criando pool '{}' com object factory do tipo '{}'", poolBeanName, factory.getClass().getSimpleName());
-			var props = configMap.getConfig(poolName);
-			return provider.createPool(poolName, props, factory);
+
+			val configMap = ctx.getBean(PoolConfigMap.class);
+			val config = configMap.getConfig(poolName);
+			val provider = lookupProvider(config.getProvider());
+
+			return provider.createPool(poolName, config, factory);
 		} catch (Exception ex) {
 			log.error("Houve um erro ao criar o pool '{}'", poolBeanName, ex);
 			return null;
 		}
+	}
+
+	private PoolProvider lookupProvider(@Nullable String providerBeanName) {
+		if (providerBeanName != null)
+			return ctx.getBean(PoolProvider.PROP_PROVIDER_NAME_PREFIX + providerBeanName, PoolProvider.class);
+		return ctx.getBeanProvider(PoolProvider.class).stream()
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("Nenhum PoolProvider registrado no contexto"));
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package com.example.utils.pool.manager
 
 import com.example.utils.pool.Pool
 import com.example.utils.pool.beans.PoolProperties
-import com.example.utils.pool.config.PoolManagerConfig
 import com.example.utils.pool.config.TestObjectFactoryConfig
 import com.example.utils.pool.config.TestPoolProviderConfig
 import com.example.utils.pool.exceptions.PoolException
@@ -11,25 +10,27 @@ import org.apache.commons.lang3.function.FailableConsumer
 import org.apache.commons.lang3.function.FailableFunction
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import spock.lang.Specification
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@SpringBootTest(classes = [TestPoolProviderConfig, TestObjectFactoryConfig, PoolManagerConfig])
-class PoolManagerSpec extends Specification {
+abstract class AbstractPoolManagerSpec extends Specification {
 
-    @Autowired
     PoolManager manager
-
-    @Autowired
     PoolProvider provider
-
-    @Autowired
-    @Qualifier('secondPool')
     Pool<TestObjectFactoryConfig.TestPoolObject> secondPool
+
+    protected abstract PoolManager getManager()
+    protected abstract PoolProvider getProvider()
+    protected abstract Pool<TestObjectFactoryConfig.TestPoolObject> getSecondPool()
+
+    def setup() {
+        manager = getManager()
+        provider = getProvider()
+        secondPool = getSecondPool()
+    }
 
     def "Pools from discovered factories are created through provider, registered with the manager and available for autowiring"() {
         expect:
@@ -227,7 +228,7 @@ class PoolManagerSpec extends Specification {
         def p4 = manager.get('bad-destroy') as TestPoolProviderConfig.TestPool
 
         def consumer = {} as FailableConsumer<TestObjectFactoryConfig.TestPoolObject, ? extends Exception>
-        def func = {it.hashCode() } as FailableFunction<TestObjectFactoryConfig.TestPoolObject, ?, ? extends Exception>
+        def func = { it.hashCode() } as FailableFunction<TestObjectFactoryConfig.TestPoolObject, ?, ? extends Exception>
         p1.use(consumer)
         p2.use(consumer)
         def hash1 = p3.use(func)

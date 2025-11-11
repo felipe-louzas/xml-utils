@@ -13,7 +13,7 @@ class TestObjectFactoryConfig {
 
     @Bean
     PoolObjectFactory secondPoolFactory() {
-        return new TestFactory(false, false)
+        return new SimpleTestFactory()
     }
 
     @Bean
@@ -33,9 +33,18 @@ class TestObjectFactoryConfig {
     }
 
 
+    static class SimpleTestFactory implements PoolObjectFactory<String> {
+        @Override
+        String create() throws Exception { "pooled-string" }
+    }
+
     static class TestFactory implements PoolObjectFactory<TestPoolObject> {
         boolean throwOnReset = false
         boolean throwOnDestroy = false
+
+        TestFactory() {
+            this(false, false)
+        }
 
         TestFactory(boolean throwOnReset, boolean throwOnDestroy) {
             this.throwOnReset = throwOnReset
