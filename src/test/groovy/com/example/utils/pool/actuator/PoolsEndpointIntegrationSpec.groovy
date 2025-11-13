@@ -1,17 +1,18 @@
 package com.example.utils.pool.actuator
 
 import com.example.utils.pool.Pool
+import com.example.utils.pool.TestObjectFactoryConfig
 import com.example.utils.pool.config.PoolActuatorConfig
 import com.example.utils.pool.config.PoolManagerConfig
-import com.example.utils.pool.config.TestObjectFactoryConfig
-import com.example.utils.pool.config.TestPoolProviderConfig
 import com.example.utils.pool.manager.PoolManager
+import com.example.utils.pool.providers.commons.Commons2Config
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import spock.lang.Specification
 
-@SpringBootTest(classes = [TestPoolProviderConfig, TestObjectFactoryConfig, PoolManagerConfig, PoolActuatorConfig])
+@SpringBootTest(classes = [TestObjectFactoryConfig, Commons2Config, PoolManagerConfig, PoolActuatorConfig])
 class PoolsEndpointIntegrationSpec extends Specification {
 
     @Autowired
@@ -28,6 +29,7 @@ class PoolsEndpointIntegrationSpec extends Specification {
     @Autowired
     PoolManager manager;
 
+    @DirtiesContext
     def "PoolsEndpoint.pools() retorna snapshot do PoolMetricsCollector"() {
         when:
         firstPool.borrow()

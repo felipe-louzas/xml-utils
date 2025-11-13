@@ -8,9 +8,19 @@ import java.util.Map;
  * Define um contrato de acesso (somente leitura) às propriedades de configuração do parser, cache, pool e outros componentes.
  */
 public interface XmlConfig {
-	static DefaultXmlConfig.DefaultXmlConfigBuilder builder() {
-		return DefaultXmlConfig.builder();
+	/**
+	 * Inicia a construção de uma nova instância de XmlConfigProperties.
+	 *
+	 * @return O construtor para XmlConfigProperties.
+	 */
+	static XmlConfigProperties.XmlConfigPropertiesBuilder builder() {
+		return XmlConfigProperties.builder();
 	}
+
+	/**
+	 * @return A configuração padrão recomendada para a maioria dos casos de uso.
+	 */
+	static XmlConfig getDefault() { return builder().build(); }
 
 	/**
 	 * @return Configurações do parser XML (DocumentBuilderFactory).

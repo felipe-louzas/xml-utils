@@ -5,11 +5,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Path;
 
+import com.example.utils.patterns.LazyInitSingleton;
 import com.example.utils.xml.config.XmlConfig;
-import com.example.utils.xml.providers.XmlProviders;
-import com.example.utils.xml.providers.document.XmlDocument;
-import com.example.utils.xml.providers.loader.XmlLoader;
+import com.example.utils.xml.services.document.XmlDocument;
+import com.example.utils.xml.services.loader.XmlLoader;
 import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -26,75 +28,77 @@ import org.w3c.dom.Document;
  *
  */
 @Slf4j
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class Xml {
 
-	/* ------ Initialize with custom config  ------ */
+	private static final LazyInitSingleton<Xml> DEFAULT_INSTANCE = LazyInitSingleton.of(Xml::buildDefaultInstance);
 
-	public static void initialize(XmlConfig config) {
-		log.debug("Inicializando provedores padrão do XML Utils com configuração personalizada...");
-		XmlProviders.initializeProviders(() -> XmlProviders.of(config));
+	@Getter(AccessLevel.PRIVATE)
+	XmlLoader loader;
+
+	/* ------ Default instance initialization and configuration ------ */
+
+	public static void initialize(@NonNull XmlLoader loader) {
+		DEFAULT_INSTANCE.set(new Xml(loader));
 	}
 
-	public static XmlProviders config(XmlConfig config) {
-		return XmlProviders.of(config);
+	public static void configure(@NonNull XmlConfig config) {
+		log.debug("Inicializando XML Utils com configuração customizada...");
+		DEFAULT_INSTANCE.set(new Xml(XmlLoader.withConfig(config)));
 	}
 
-	/* ------ Convenience loader delegates  ------ */
+	public static void reset() {
+		log.debug("Limpando configurações do XML Utils");
+		DEFAULT_INSTANCE.reset();
+	}
+
+	private static Xml buildDefaultInstance() {
+		log.debug("Inicializando XML Utils com configuração padrão...");
+		return new Xml(XmlLoader.withConfig(XmlConfig.getDefault()));
+	}
+
+	private static Xml getDefaultInstance() {
+		return DEFAULT_INSTANCE.get();
+	}
+
+	/* ------ Convenience default instance delegates  ------ */
+
+	public static XmlLoader loader() {
+		return getDefaultInstance().getLoader();
+	}
 
 	public static XmlDocument load(Document document) {
-		return loader().fromDocument(document);
+		return loader().load(document);
 	}
 
 	public static XmlDocument load(CharSequence xmlContent) {
-		return loader().fromString(xmlContent);
+		return loader().load(xmlContent);
 	}
 
 	public static XmlDocument load(File file) {
-		return loader().fromFile(file);
+		return loader().load(file);
 	}
 
 	public static XmlDocument load(Path path) {
-		return loader().fromPath(path);
+		return loader().load(path);
 	}
 
 	public static XmlDocument load(InputStream inputStream) {
-		return loader().fromInputStream(inputStream);
+		return loader().load(inputStream);
 	}
 
 	public static XmlDocument load(Reader reader) {
-		return loader().fromReader(reader);
+		return loader().load(reader);
 	}
 
-	public static XmlLoader loader() {
-		return XmlProviders.getDefaultProviders().getXmlLoader();
+	public static XmlConfig getConfig() {
+		return loader().getConfig();
 	}
+
+	/* ------ Create instance with independent configuration  ------ */
 
 	public static XmlLoader loader(XmlConfig config) {
-		return config(config).getXmlLoader();
+		return new Xml(XmlLoader.withConfig(config)).getLoader();
 	}
-
-	/* ------ Validation  ------ */
-	/*
-	public XmlValidator validator() {
-		return context.getXmlValidator();
-	}
-	*/
-
-	/* ------ Formatting  ------ */
-	/*
-	public String toFormattedString() {
-		return formatter().toString();
-	}
-
-	@Override
-	public String toString() {
-		return formatter().toString(false);
-	}
-
-	public XmlFormatter formatter() {
-		return context.getXmlFormatter();
-	}
-	*/
 }

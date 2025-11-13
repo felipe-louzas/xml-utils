@@ -1,38 +1,60 @@
 package com.example.utils.pool.manager
 
-import com.example.utils.pool.Pool
-import com.example.utils.pool.config.PoolManagerConfig
-import com.example.utils.pool.config.TestObjectFactoryConfig
-import com.example.utils.pool.config.TestPoolProviderConfig
-import com.example.utils.pool.providers.PoolProvider
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.test.context.SpringBootTest
+import com.example.utils.pool.TestObjectFactoryConfig
+import com.example.utils.pool.beans.PoolProperties
+import com.example.utils.pool.exceptions.PoolException
+import com.example.utils.pool.providers.commons.GenericObjectPoolAdapter
+import spock.lang.Specification
 
-@SpringBootTest(classes = [TestPoolProviderConfig, TestObjectFactoryConfig, PoolManagerConfig])
-class PoolManagerSpec extends AbstractPoolManagerSpec {
+class PoolManagerSpec extends Specification {
 
-    @Autowired
-    PoolManager manager
+    def "can register and close pools"() {
+        given:
+        def manager = new PoolManager()
+        def pool = new GenericObjectPoolAdapter('p1', PoolProperties.getDefaults(), new TestObjectFactoryConfig.TestFactory());
 
-    @Autowired
-    PoolProvider provider
-
-    @Autowired
-    @Qualifier('secondPool')
-    Pool<TestObjectFactoryConfig.TestPoolObject> secondPool
-
-
-    PoolManager getManager() { return manager }
-
-    PoolProvider getProvider() { return provider }
-
-    Pool<TestObjectFactoryConfig.TestPoolObject> getSecondPool() { return secondPool }
-
-    def "Injected pool provider default type is GenericPoolAdapter"() {
         expect:
-        (provider instanceof TestPoolProviderConfig.TestProvider) == true
-        (secondPool instanceof TestPoolProviderConfig.TestPool) == true
+        manager.size() == 0
+        !manager.hasPool('p1')
+
+        when:
+        manager.register('p1', pool)
+
+        then:
+        manager.size() == 1
+        manager.hasPool('p1')
+        manager.get('p1').getName() == 'p1'
+        !pool.closed
+
+        when:
+        manager.close()
+
+        then:
+        noExceptionThrown()
+        pool.closed
+    }
+
+    def "duplicate registration throws exception"() {
+        given:
+        def manager = new PoolManager()
+        def pool = new GenericObjectPoolAdapter('p1', PoolProperties.getDefaults(), new TestObjectFactoryConfig.TestFactory());
+
+        expect:
+        manager.size() == 0
+        !manager.hasPool('p1')
+
+        when:
+        manager.register('p1', pool)
+
+        then:
+        manager.size() == 1
+        manager.hasPool('p1')
+
+        when: 'duplicate registration should fail'
+        manager.register('p1', pool)
+
+        then:
+        thrown(PoolException)
     }
 }
 

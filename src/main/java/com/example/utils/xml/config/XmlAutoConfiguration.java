@@ -1,12 +1,15 @@
 package com.example.utils.xml.config;
 
 import com.example.utils.xml.config.constants.ConfigKeys;
-import com.example.utils.xml.providers.factory.DefaultXmlFactory;
-import com.example.utils.xml.providers.factory.XmlFactory;
-import com.example.utils.xml.providers.loader.DefaultXmlLoader;
-import com.example.utils.xml.providers.loader.XmlLoader;
-import com.example.utils.xml.providers.parser.DocumentBuilderProvider;
-import com.example.utils.xml.providers.parser.FactoryDocumentBuilderProvider;
+import com.example.utils.xml.services.factory.DefaultXmlFactory;
+import com.example.utils.xml.services.factory.XmlFactory;
+import com.example.utils.xml.services.loader.DefaultXmlLoader;
+import com.example.utils.xml.services.loader.XmlLoader;
+import com.example.utils.xml.services.parser.DocumentBuilderProvider;
+import com.example.utils.xml.services.parser.FactoryDocumentBuilderProvider;
+import com.example.utils.xml.services.providers.XmlProviders;
+import com.example.utils.xml.services.xpath.FactoryXPathEvaluatorProvider;
+import com.example.utils.xml.services.xpath.XPathEvaluatorProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,19 +17,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Auto-configuração do módulo XML Utils para Spring Boot.
- * <p>
- * Esta configuração cria um bean {@link XmlConfig} com base nas propriedades definidas no arquivo de propriedades do Spring Boot
- * (application.properties ou application.yml) sob o prefixo "utils.xml".
+ * Classe de configuração automática para os componentes XML.
  */
 @Configuration
 @EnableConfigurationProperties
 public class XmlAutoConfiguration {
 	@Bean
-	@ConditionalOnMissingBean
 	@ConfigurationProperties(prefix = ConfigKeys.PROP_PREFIX)
 	public XmlConfig xmlConfig() {
-		return new DefaultXmlConfig();
+		return new XmlConfigProperties();
 	}
 
 	@Bean
@@ -37,13 +36,27 @@ public class XmlAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public XmlLoader xmlLoader(DocumentBuilderProvider provider) {
-		return new DefaultXmlLoader(provider);
+	public DocumentBuilderProvider documentBuilderProvider(XmlFactory factory) {
+		return new FactoryDocumentBuilderProvider(factory);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public DocumentBuilderProvider documentBuilderProvider(XmlFactory factory) {
-		return new FactoryDocumentBuilderProvider(factory);
+	public XPathEvaluatorProvider xPathEvaluatorProvider(XmlFactory factory) {
+		return new FactoryXPathEvaluatorProvider(factory);
+	}
+
+	@Bean
+	public XmlProviders xmlProviders(XmlConfig config,
+	                                 XmlFactory factory,
+	                                 DocumentBuilderProvider documentBuilderProvider,
+	                                 XPathEvaluatorProvider xPathEvaluatorProvider) {
+		return new XmlProviders(config, factory, documentBuilderProvider, xPathEvaluatorProvider);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public XmlLoader xmlLoader(XmlProviders providers) {
+		return new DefaultXmlLoader(providers);
 	}
 }
