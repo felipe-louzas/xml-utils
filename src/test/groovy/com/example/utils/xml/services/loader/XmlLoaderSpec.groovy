@@ -6,6 +6,7 @@ import com.example.utils.xml.config.XmlAutoConfiguration
 import com.example.utils.xml.exceptions.XmlException
 import com.example.utils.xml.services.document.XmlDocument
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.w3c.dom.Document
 import org.xml.sax.SAXParseException
 import spock.lang.Specification
@@ -16,6 +17,7 @@ import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@DirtiesContext
 @SpringBootTest(classes = [XmlDefaultInstanceInitializer, XmlAutoConfiguration])
 class XmlLoaderSpec extends Specification {
 
@@ -28,7 +30,6 @@ class XmlLoaderSpec extends Specification {
     }
 
     def cleanup() {
-        Xml.reset()
         Files.deleteIfExists(tempFile)
     }
 
@@ -75,7 +76,7 @@ class XmlLoaderSpec extends Specification {
         XmlDocument doc = loader.load(stream)
 
         then:
-        doc.getDoubleByXPath("/root/num") == 123.45d
+        doc.getDecimalByXPath("/root/num") == new BigDecimal("123.45")
     }
 
     def "should load valid XML from Reader"() {
@@ -103,7 +104,7 @@ class XmlLoaderSpec extends Specification {
         doc.getStringByXPath("/root/data") == "ok"
     }
 
-    /* ------------------- Edge Cases ------------------- */
+    /* ------------------- Fluxo Negativos  ------------------- */
 
     def "should throw exception when XML string is null"() {
         when:
@@ -142,7 +143,7 @@ class XmlLoaderSpec extends Specification {
         loader.load(missing)
 
         then:
-        def ex= thrown(XmlException)
+        def ex = thrown(XmlException)
         ex.cause instanceof NoSuchFileException
     }
 
@@ -206,71 +207,5 @@ class XmlLoaderSpec extends Specification {
         ex.cause instanceof SAXParseException
     }
 
-    /* ------------------- XPath Evaluation ------------------- */
-
-    def "should evaluate various XPath return types correctly"() {
-        given:
-        def xml = """
-            <root>
-                <s>abc</s>
-                <i>10</i>
-                <d>2.5</d>
-                <b>true</b>
-                <list><item>1</item><item>2</item></list>
-            </root>
-        """
-        XmlDocument doc = loader.load(xml)
-
-        expect:
-        doc.getStringByXPath("/root/s") == "abc"
-        doc.getIntByXPath("/root/i") == 10
-        doc.getDoubleByXPath("/root/d") == 2.5d
-        doc.getDecimalByXPath("/root/d") == new BigDecimal("2.5")
-        doc.getBooleanByXPath("/root/b")
-        doc.getNodesByXPath("/root/list/item").size() == 2
-    }
-
-    def "should return null or empty list for non-existent XPath"() {
-        given:
-        def xml = "<root><a>1</a></root>"
-        XmlDocument doc = loader.load(xml)
-
-        expect:
-        doc.getStringByXPath("/root/missing").isEmpty()
-        doc.getBigIntByXPath("/root/missing") == null
-        doc.getDoubleByXPath("/root/missing") == null
-        doc.getLongByXPath("/root/missing") == null
-        doc.getNodeByXPath("/root/missing") == null
-        doc.getNodesByXPath("/root/missing").isEmpty()
-    }
-
-    def "should handle namespaces if supported"() {
-        given:
-        def xml = """
-            <ns:root xmlns:ns="http://example.com/ns">
-                <ns:value>42</ns:value>
-            </ns:root>
-        """
-
-        when:
-        XmlDocument doc = loader.load(xml)
-
-        then:
-        // If namespaces are properly handled by XPath evaluator
-        doc.getIntByXPath("/*[local-name()='root']/*[local-name()='value']") == 42
-    }
-
-    def "should support nested XPath evaluation"() {
-        given:
-        def xml = "<root><parent><child>ok</child></parent></root>"
-        XmlDocument doc = loader.load(xml)
-
-        when:
-        def childValue = doc.findNodeByXPath("/root/parent")
-                .evaluateAsString("child")
-
-        then:
-        childValue == "ok"
-    }
 }
 

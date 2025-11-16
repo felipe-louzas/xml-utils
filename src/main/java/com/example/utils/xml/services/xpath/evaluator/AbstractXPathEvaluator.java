@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import javax.xml.xpath.XPathConstants;
 import com.example.utils.xml.services.xpath.exceptions.XPathEvaluationException;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -22,7 +22,7 @@ import org.w3c.dom.NodeList;
  * Abstract base implementation of {@link XPathEvaluator}.
  * <p>
  * Handles all type conversions, mapping utilities, and convenience evaluation methods. Subclasses must implement only
- * {@link #evaluate(String, QName)} to perform the actual XPath evaluation logic.
+ * {@link #evaluateExpression(String, QName)} to perform the actual XPath evaluation logic.
  */
 public abstract class AbstractXPathEvaluator implements XPathEvaluator {
 
@@ -31,7 +31,7 @@ public abstract class AbstractXPathEvaluator implements XPathEvaluator {
 	   ============================================================ */
 
 	@Override
-	public abstract Object evaluate(String expression, QName returnType);
+	public abstract Object evaluateExpression(String expression, QName returnType);
 
 	protected abstract XPathEvaluator createRelativeEvaluator(Node node);
 
@@ -58,80 +58,76 @@ public abstract class AbstractXPathEvaluator implements XPathEvaluator {
 
 	@Override
 	public String evaluateAsString(String expression) {
-		val result = evaluate(expression, XPathConstants.STRING);
-		return result != null ? result.toString() : null;
+		val result = evaluateExpression(expression, XPathConstants.STRING);
+		return Objects.toString(result, null);
 	}
 
 	@Override
-	public Boolean evaluateAsBoolean(String expression) {
-		val result = evaluate(expression, XPathConstants.BOOLEAN);
-		if (result == null) return null;
-		if (result instanceof Boolean b) return b;
-		if (result instanceof Number n) return n.doubleValue() != 0d;
-		if (result instanceof String s) return Boolean.parseBoolean(s.trim());
-		throw conversionError(expression, "Boolean", result);
+	public String evaluateAsStringOrNull(String expression) {
+		return StringUtils.trimToNull(evaluateAsString(expression));
 	}
 
 	@Override
-	public Double evaluateAsDouble(String expression) {
-		val result = evaluate(expression, XPathConstants.NUMBER);
-		if (result == null) return null;
-		if (result instanceof Double d) return d;
-		if (result instanceof Number n) return n.doubleValue();
-		if (result instanceof String str && StringUtils.isNotBlank(str))
-			return tryParse(expression, "Double", Double::parseDouble, str);
-		throw conversionError(expression, "Double", result);
+	public boolean evaluateAsBooleanString(String expression) {
+		val result = evaluateAsStringOrNull(expression);
+		if (result == null) return false;
+		switch (result.toLowerCase()) {
+			case "true", "1", "yes", "on" -> { return true; }
+			case "false", "0", "no", "off" -> { return false; }
+			default -> throw parsingError(expression, "Boolean", result, null);
+		}
 	}
 
 	@Override
 	public BigDecimal evaluateAsDecimal(String expression) {
-		val result = evaluate(expression, XPathConstants.NUMBER);
+		val result = evaluateAsStringOrNull(expression);
 		if (result == null) return null;
-		if (result instanceof BigDecimal bd) return bd;
-		if (result instanceof Double d) return BigDecimal.valueOf(d);
-		if (result instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
-		if (result instanceof String str && StringUtils.isNotBlank(str))
-			return tryParse(expression, "BigDecimal", BigDecimal::new, str);
-		throw conversionError(expression, "BigDecimal", result);
+		return tryParse(expression, "BigDecimal", BigDecimal::new, result);
 	}
 
 	@Override
 	public BigInteger evaluateAsBigInt(String expression) {
-		val num = evaluateAsDecimal(expression);
-		return num != null ? num.toBigInteger() : null;
+		val result = evaluateAsStringOrNull(expression);
+		if (result == null) return null;
+		try {
+			val bd = new BigDecimal(result.trim());
+			return bd.toBigIntegerExact();
+		} catch (Exception ex) {
+			throw parsingError(expression, "BigInteger", result, ex);
+		}
 	}
 
 	@Override
 	public Long evaluateAsLong(String expression) {
-		val result = evaluate(expression, XPathConstants.NUMBER);
+		val result = evaluateAsNumber(expression);
 		if (result == null) return null;
 		if (result instanceof Long l) return l;
 		if (result instanceof Number n) return n.longValue();
-		if (result instanceof String str && NumberUtils.isParsable(str))
+		if (result instanceof String str)
 			return tryParse(expression, "Long", Long::parseLong, str);
 		throw conversionError(expression, "Long", result);
 	}
 
 	@Override
 	public Integer evaluateAsInt(String expression) {
-		val result = evaluate(expression, XPathConstants.NUMBER);
+		val result = evaluateAsNumber(expression);
 		if (result == null) return null;
 		if (result instanceof Integer i) return i;
 		if (result instanceof Number n) return n.intValue();
-		if (result instanceof String str && NumberUtils.isParsable(str))
+		if (result instanceof String str)
 			return tryParse(expression, "Integer", Integer::parseInt, str);
 		throw conversionError(expression, "Integer", result);
 	}
 
 	@Override
 	public Node evaluateAsNode(String expression) {
-		val result = evaluate(expression, XPathConstants.NODE);
+		val result = evaluateExpression(expression, XPathConstants.NODE);
 		return (result instanceof Node node) ? node : null;
 	}
 
 	@Override
 	public NodeList evaluateAsNodeList(String expression) {
-		val result = evaluate(expression, XPathConstants.NODESET);
+		val result = evaluateExpression(expression, XPathConstants.NODESET);
 		return (result instanceof NodeList nodes) ? nodes : null;
 	}
 
@@ -145,14 +141,29 @@ public abstract class AbstractXPathEvaluator implements XPathEvaluator {
 			.toList();
 	}
 
+	@Override
+	public boolean existsNode(String expression) {
+		return evaluateAsNode(expression) != null;
+	}
+
+	@Override
+	public boolean evaluateAsTrue(String expression) {
+		return evaluateAsBoolean(expression);
+	}
+
+	@Override
+	public boolean evaluateAsFalse(String expression) {
+		return !evaluateAsBoolean(expression);
+	}
+
 	/* ============================================================
 	   Relative evaluation
 	   ============================================================ */
 
 	@Override
-	public XPathEvaluator findNode(String expression) {
+	public Optional<XPathEvaluator> findNode(String expression) {
 		val node = evaluateAsNode(expression);
-		return node != null ? createRelativeEvaluator(node) : null;
+		return Optional.ofNullable(node).map(this::createRelativeEvaluator);
 	}
 
 	@Override
@@ -167,16 +178,37 @@ public abstract class AbstractXPathEvaluator implements XPathEvaluator {
 	   Utility methods
 	   ============================================================ */
 
+	private boolean evaluateAsBoolean(String expression) {
+		val result = evaluateExpression(expression, XPathConstants.BOOLEAN);
+		if (result == null) return false;
+		if (result instanceof Boolean b) return b;
+		if (result instanceof Number n) return n.doubleValue() != 0d;
+		if (result instanceof String s) return Boolean.parseBoolean(s.trim());
+		throw conversionError(expression, "Boolean", result);
+	}
+
+	private Object evaluateAsNumber(String expression) {
+		val result = evaluateExpression(expression, XPathConstants.NUMBER);
+		if (result == null) return null;
+		if (result instanceof Double d && Double.isNaN(d))
+			return evaluateAsStringOrNull(expression);
+		return result;
+	}
+
 	private <T> T tryParse(String expr, String targetType, Function<String, T> parser, String str) {
 		try {
 			return parser.apply(str.trim());
 		} catch (Exception ex) {
-			throw new XPathEvaluationException(
-				"Cannot convert " + str + " to " + targetType + " for expression", expr, ex);
+			throw parsingError(expr, targetType, str, ex);
 		}
 	}
 
-	protected RuntimeException conversionError(String expr, String targetType, Object value) {
+	protected XPathEvaluationException parsingError(String expr, String targetType, Object value, Exception cause) {
+		return new XPathEvaluationException(
+			"Cannot convert " + value + " to " + targetType + " for expression", expr, cause);
+	}
+
+	protected XPathEvaluationException conversionError(String expr, String targetType, Object value) {
 		return new XPathEvaluationException(
 			"Cannot convert result of type " + value.getClass().getSimpleName() + " to " + targetType + " for expression", expr);
 	}

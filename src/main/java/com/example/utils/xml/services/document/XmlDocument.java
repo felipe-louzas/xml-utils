@@ -3,6 +3,9 @@ package com.example.utils.xml.services.document;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.example.utils.xml.services.context.XmlContext;
 import com.example.utils.xml.services.xpath.evaluator.XPathEvaluator;
@@ -23,31 +26,27 @@ public class XmlDocument {
 	}
 
 	public String getStringByXPath(String expression) {
-		return xpath().evaluateAsString(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsStringOrNull);
 	}
 
 	public Boolean getBooleanByXPath(String expression) {
-		return xpath().evaluateAsBoolean(expression);
-	}
-
-	public Double getDoubleByXPath(String expression) {
-		return xpath().evaluateAsDouble(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsBooleanString);
 	}
 
 	public BigDecimal getDecimalByXPath(String expression) {
-		return xpath().evaluateAsDecimal(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsDecimal);
 	}
 
 	public BigInteger getBigIntByXPath(String expression) {
-		return xpath().evaluateAsBigInt(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsBigInt);
 	}
 
 	public Long getLongByXPath(String expression) {
-		return xpath().evaluateAsLong(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsLong);
 	}
 
 	public Integer getIntByXPath(String expression) {
-		return xpath().evaluateAsInt(expression);
+		return getByXPath(expression, XPathEvaluator::evaluateAsInt);
 	}
 
 	public Node getNodeByXPath(String expression) {
@@ -58,7 +57,18 @@ public class XmlDocument {
 		return xpath().evaluateAsListOfNodes(expression);
 	}
 
-	public XPathEvaluator findNodeByXPath(String expression) {
+	public Optional<XPathEvaluator> findNodeByXPath(String expression) {
 		return xpath().findNode(expression);
+	}
+
+	public Stream<XPathEvaluator> findNodesByXPath(String expression) {
+		return xpath().findNodes(expression);
+	}
+
+	public <T> T getByXPath(String expression, Function<XPathEvaluator, T> mapper) {
+		return xpath()
+			.findNode(expression)
+			.map(mapper)
+			.orElse(null);
 	}
 }

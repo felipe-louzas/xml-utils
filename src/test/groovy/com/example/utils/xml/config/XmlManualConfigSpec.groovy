@@ -11,7 +11,7 @@ class XmlManualConfigSpec extends Specification {
 
     def "Xml pode ser inicializado com configurações padrão"() {
         given:
-        def defaultConfig = XmlConfig.default
+        def defaultConfig = XmlConfig.getDefault()
 
         expect:
         Xml.config == defaultConfig
@@ -29,7 +29,7 @@ class XmlManualConfigSpec extends Specification {
 
         then:
         Xml.config == customConfig
-        Xml.config != XmlConfig.default
+        Xml.config != XmlConfig.getDefault()
     }
 
     def "Xml pode criar uma instância configurada independente"() {
@@ -50,17 +50,17 @@ class XmlManualConfigSpec extends Specification {
 
         then:
         Xml.config == customConfig
-        Xml.config != XmlConfig.default
+        Xml.config != XmlConfig.getDefault()
         Xml.config != otherConfig
 
         and:
         defaultLoader.config == customConfig
-        defaultLoader.config != XmlConfig.default
+        defaultLoader.config != XmlConfig.getDefault()
         defaultLoader.config != otherConfig
 
         and:
         customLoader.config != customConfig
-        customLoader.config != XmlConfig.default
+        customLoader.config != XmlConfig.getDefault()
         customLoader.config != Xml.config
         customLoader.config == otherConfig
     }

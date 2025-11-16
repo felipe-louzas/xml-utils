@@ -82,7 +82,7 @@ public class DefaultXmlFactory implements XmlFactory {
 			tryQuietly(documentBuilderFactory::setAttribute, XMLConstants.ACCESS_EXTERNAL_SCHEMA, securityConfig.getProtocolsExternalSchema());
 
 			// Configurações de compatibilidade com parsers de terceiros
-			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.DISALLOW_DTD, securityConfig.isDisableDtd());
+			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.DISALLOW_DTD, securityConfig.isDisallowDTD());
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_DTD, securityConfig.isAllowExternalEntities());
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_GENERAL_ENTITIES, securityConfig.isAllowExternalEntities());
 			tryQuietly(documentBuilderFactory::setFeature, XmlConstantsCompat.LOAD_EXTERNAL_PARAMETER_ENTITIES, securityConfig.isAllowExternalEntities());
@@ -101,7 +101,7 @@ public class DefaultXmlFactory implements XmlFactory {
 			tryQuietly(schemaFactory::setProperty, XMLConstants.ACCESS_EXTERNAL_DTD, securityConfig.getProtocolsExternalDTD());
 			tryQuietly(schemaFactory::setProperty, XMLConstants.ACCESS_EXTERNAL_SCHEMA, securityConfig.getProtocolsExternalSchema());
 
-			tryQuietly(schemaFactory::setFeature, XmlConstantsCompat.DISALLOW_DTD, securityConfig.isDisableDtd());
+			tryQuietly(schemaFactory::setFeature, XmlConstantsCompat.DISALLOW_DTD, securityConfig.isDisallowDTD());
 		}
 		return schemaFactory;
 	}

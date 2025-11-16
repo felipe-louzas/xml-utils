@@ -197,7 +197,7 @@ public interface XmlConfig {
 		 *
 		 * @return true se o DTD estiver efetivamente desabilitado.
 		 */
-		default boolean isDtdDisabled() {
+		default boolean isDisallowDTD() {
 			return isSecureProcessing() || isDisableDtd();
 		}
 

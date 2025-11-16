@@ -3,6 +3,7 @@ package com.example.utils.xml.services.xpath.evaluator;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -13,9 +14,12 @@ import org.w3c.dom.NodeList;
 
 public interface XPathEvaluator {
 
+	String CURRENT_NODE = ".";
+
+
 	/* --------------- Base evaluate implementation -------------- */
 
-	Object evaluate(String expression, QName returnType);
+	Object evaluateExpression(String expression, QName returnType);
 
 	/* -------------------- Generic evaluation ------------------- */
 
@@ -27,9 +31,9 @@ public interface XPathEvaluator {
 
 	String evaluateAsString(String expression);
 
-	Boolean evaluateAsBoolean(String expression);
+	String evaluateAsStringOrNull(String expression);
 
-	Double evaluateAsDouble(String expression);
+	boolean evaluateAsBooleanString(String expression);
 
 	BigDecimal evaluateAsDecimal(String expression);
 
@@ -45,9 +49,47 @@ public interface XPathEvaluator {
 
 	List<Node> evaluateAsListOfNodes(String expression);
 
+	/* ------------- Existence and truth evaluation ------------- */
+
+	boolean existsNode(String expression);
+
+	boolean evaluateAsTrue(String expression);
+
+	boolean evaluateAsFalse(String expression);
+
 	/* ------------- Node-relative evaluation ------------- */
 
-	XPathEvaluator findNode(String expression);
+	Optional<XPathEvaluator> findNode(String expression);
 
 	Stream<XPathEvaluator> findNodes(String expression);
+
+	/* ------------- Default current node evaluator ------------- */
+
+	default String evaluateAsString() {
+		return evaluateAsString(CURRENT_NODE);
+	}
+
+	default String evaluateAsStringOrNull() {
+		return evaluateAsStringOrNull(CURRENT_NODE);
+	}
+
+	default boolean evaluateAsBooleanString() {
+		return evaluateAsBooleanString(CURRENT_NODE);
+	}
+
+	default BigDecimal evaluateAsDecimal() {
+		return evaluateAsDecimal(CURRENT_NODE);
+	}
+
+	default BigInteger evaluateAsBigInt() {
+		return evaluateAsBigInt(CURRENT_NODE);
+	}
+
+	default Long evaluateAsLong() {
+		return evaluateAsLong(CURRENT_NODE);
+	}
+
+	default Integer evaluateAsInt() {
+		return evaluateAsInt(CURRENT_NODE);
+	}
 }

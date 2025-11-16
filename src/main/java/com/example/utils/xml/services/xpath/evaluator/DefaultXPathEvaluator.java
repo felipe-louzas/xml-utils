@@ -17,7 +17,7 @@ public class DefaultXPathEvaluator extends AbstractXPathEvaluator implements XPa
 	Node contextNode;
 
 	@Override
-	public Object evaluate(String expression, QName returnType) {
+	public Object evaluateExpression(String expression, QName returnType) {
 		val compiledExpression = compiler.compile(expression);
 
 		try {

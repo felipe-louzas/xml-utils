@@ -25,7 +25,7 @@ public class XmlDefaultInstanceInitializer {
 
 	@PreDestroy
 	public void destroy() {
-		log.debug("Limpando configurações do XML Utils antes de destruir o bean gerenciado pelo Spring...");
+		log.debug("Reinicializando XML Utils configurado pelo Spring...");
 		Xml.reset();
 	}
 }

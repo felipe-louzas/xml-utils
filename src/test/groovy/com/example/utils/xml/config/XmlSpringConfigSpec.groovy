@@ -3,8 +3,10 @@ package com.example.utils.xml.config
 import com.example.utils.xml.Xml
 import com.example.utils.xml.beans.XmlDefaultInstanceInitializer
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import spock.lang.Specification
 
+@DirtiesContext
 @SpringBootTest(classes = [XmlDefaultInstanceInitializer, XmlAutoConfiguration], properties = [
         "utils.xml.formatter.indent-amount=4",
         "utils.xml.formatter.indent=false",
