@@ -13,7 +13,7 @@ import spock.lang.Unroll
 
 @DirtiesContext
 @SpringBootTest(classes = [XmlDefaultInstanceInitializer, XmlAutoConfiguration])
-class XmlDocumentBlackBoxSpec extends Specification {
+class XmlDocumentSpec extends Specification {
 
     def sampleXml = '''
         <root>

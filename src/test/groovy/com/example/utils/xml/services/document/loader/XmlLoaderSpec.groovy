@@ -1,10 +1,11 @@
-package com.example.utils.xml.services.loader
+package com.example.utils.xml.services.document.loader
 
 import com.example.utils.xml.Xml
 import com.example.utils.xml.beans.XmlDefaultInstanceInitializer
 import com.example.utils.xml.config.XmlAutoConfiguration
 import com.example.utils.xml.exceptions.XmlException
 import com.example.utils.xml.services.document.XmlDocument
+import com.example.utils.xml.services.document.loader.XmlLoader
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.w3c.dom.Document

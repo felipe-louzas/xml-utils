@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import com.example.utils.patterns.LazyInitSingleton;
 import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.services.document.XmlDocument;
-import com.example.utils.xml.services.loader.XmlLoader;
+import com.example.utils.xml.services.document.loader.XmlLoader;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,16 +17,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
-/**
- * The main entry point for the XML utility library.
- * <p>
- * This class acts as a wrapper for a standard {@link Document} object and provides fluent access to validation, formatting, and XPath
- * evaluation.
- * <p>
- * An instance of this class is intended to be used by a single thread and is not thread-safe, as it holds a mutable {@link Document}
- * object. However, the static methods used to create {@link Xml} instances are thread-safe.
- *
- */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

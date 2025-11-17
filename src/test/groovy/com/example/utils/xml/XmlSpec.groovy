@@ -2,7 +2,7 @@ package com.example.utils.xml
 
 import com.example.utils.xml.config.XmlConfig
 import com.example.utils.xml.services.document.XmlDocument
-import com.example.utils.xml.services.loader.XmlLoader
+import com.example.utils.xml.services.document.loader.XmlLoader
 import org.w3c.dom.Document
 import spock.lang.Specification
 

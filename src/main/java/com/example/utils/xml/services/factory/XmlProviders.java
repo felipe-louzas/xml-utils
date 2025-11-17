@@ -1,9 +1,8 @@
-package com.example.utils.xml.services.providers;
+package com.example.utils.xml.services.factory;
 
 import com.example.utils.xml.config.XmlConfig;
-import com.example.utils.xml.services.factory.XmlFactory;
-import com.example.utils.xml.services.parser.DocumentBuilderProvider;
-import com.example.utils.xml.services.xpath.XPathEvaluatorProvider;
+import com.example.utils.xml.services.document.parser.DocumentBuilderProvider;
+import com.example.utils.xml.services.xpath.provider.XPathEvaluatorProvider;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

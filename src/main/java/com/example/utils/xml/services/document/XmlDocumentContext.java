@@ -1,7 +1,7 @@
-package com.example.utils.xml.services.context;
+package com.example.utils.xml.services.document;
 
 import com.example.utils.xml.services.formatter.XmlFormatter;
-import com.example.utils.xml.services.providers.XmlProviders;
+import com.example.utils.xml.services.factory.XmlProviders;
 import com.example.utils.xml.services.validation.XmlValidator;
 import com.example.utils.xml.services.xpath.evaluator.XPathEvaluator;
 import lombok.AccessLevel;
@@ -13,7 +13,7 @@ import org.w3c.dom.Document;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public final class XmlContext {
+public final class XmlDocumentContext {
 	final XmlProviders providers;
 	final Document document;
 

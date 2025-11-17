@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.example.utils.xml.services.context.XmlContext;
 import com.example.utils.xml.services.xpath.evaluator.XPathEvaluator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ import org.w3c.dom.Node;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class XmlDocument {
-	XmlContext context;
+	XmlDocumentContext context;
 
 	/* ------ XPath Evaluation  ------ */
 

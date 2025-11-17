@@ -1,4 +1,4 @@
-package com.example.utils.xml.services.loader;
+package com.example.utils.xml.services.document.loader;
 
 import java.io.File;
 import java.io.InputStream;
@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.services.document.XmlDocument;
 import com.example.utils.xml.services.factory.DefaultXmlFactory;
-import com.example.utils.xml.services.parser.FactoryDocumentBuilderProvider;
-import com.example.utils.xml.services.providers.XmlProviders;
-import com.example.utils.xml.services.xpath.FactoryXPathEvaluatorProvider;
+import com.example.utils.xml.services.document.parser.FactoryDocumentBuilderProvider;
+import com.example.utils.xml.services.factory.XmlProviders;
+import com.example.utils.xml.services.xpath.provider.FactoryXPathEvaluatorProvider;
 import lombok.val;
 import org.w3c.dom.Document;
 

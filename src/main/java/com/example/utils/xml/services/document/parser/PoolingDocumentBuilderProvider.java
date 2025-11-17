@@ -1,4 +1,4 @@
-package com.example.utils.xml.services.parser;
+package com.example.utils.xml.services.document.parser;
 
 import javax.xml.parsers.DocumentBuilder;
 

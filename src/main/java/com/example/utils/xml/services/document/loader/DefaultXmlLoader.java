@@ -1,4 +1,4 @@
-package com.example.utils.xml.services.loader;
+package com.example.utils.xml.services.document.loader;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,9 +11,9 @@ import javax.xml.parsers.DocumentBuilder;
 
 import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.exceptions.XmlException;
-import com.example.utils.xml.services.context.XmlContext;
+import com.example.utils.xml.services.document.XmlDocumentContext;
 import com.example.utils.xml.services.document.XmlDocument;
-import com.example.utils.xml.services.providers.XmlProviders;
+import com.example.utils.xml.services.factory.XmlProviders;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -74,21 +74,21 @@ public final class DefaultXmlLoader implements XmlLoader {
 
 	@Override
 	public XmlDocument load(@NonNull Document document) {
-		return createXmlInstance(document);
+		return createXmlDocument(document);
 	}
 
 	private <E extends Exception> XmlDocument parseWithBuilder(String source, FailableFunction<DocumentBuilder, Document, E> parser) {
 		try {
 			val document = providers.getDocumentBuilderProvider().parse(parser);
-			return createXmlInstance(document);
+			return createXmlDocument(document);
 		} catch (Exception ex) {
 			log.debug("Failed to parse XML from {}: {}", source, ex.getMessage());
 			throw new XmlException("Failed to parse XML from " + source, ex);
 		}
 	}
 
-	private XmlDocument createXmlInstance(@NonNull Document document) {
-		val context = new XmlContext(providers, document);
+	private XmlDocument createXmlDocument(@NonNull Document document) {
+		val context = new XmlDocumentContext(providers, document);
 		return new XmlDocument(context);
 	}
 }

@@ -1,7 +1,7 @@
 package com.example.utils.xml.beans;
 
 import com.example.utils.xml.Xml;
-import com.example.utils.xml.services.loader.XmlLoader;
+import com.example.utils.xml.services.document.loader.XmlLoader;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AccessLevel;

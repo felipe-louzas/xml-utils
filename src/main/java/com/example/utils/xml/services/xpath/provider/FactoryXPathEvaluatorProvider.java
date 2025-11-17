@@ -1,4 +1,4 @@
-package com.example.utils.xml.services.xpath;
+package com.example.utils.xml.services.xpath.provider;
 
 import com.example.utils.xml.services.factory.XmlFactory;
 import com.example.utils.xml.services.xpath.compiler.DefaultXPathCompiler;
