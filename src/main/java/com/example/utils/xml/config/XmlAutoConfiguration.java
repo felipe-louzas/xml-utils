@@ -1,12 +1,12 @@
 package com.example.utils.xml.config;
 
 import com.example.utils.xml.config.constants.ConfigKeys;
-import com.example.utils.xml.services.factory.DefaultXmlFactory;
-import com.example.utils.xml.services.factory.XmlFactory;
 import com.example.utils.xml.services.document.loader.DefaultXmlLoader;
 import com.example.utils.xml.services.document.loader.XmlLoader;
 import com.example.utils.xml.services.document.parser.DocumentBuilderProvider;
 import com.example.utils.xml.services.document.parser.FactoryDocumentBuilderProvider;
+import com.example.utils.xml.services.factory.DefaultXmlFactory;
+import com.example.utils.xml.services.factory.XmlFactory;
 import com.example.utils.xml.services.factory.XmlProviders;
 import com.example.utils.xml.services.xpath.provider.FactoryXPathEvaluatorProvider;
 import com.example.utils.xml.services.xpath.provider.XPathEvaluatorProvider;

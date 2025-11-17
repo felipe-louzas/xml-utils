@@ -7,8 +7,8 @@ import java.nio.file.Path;
 
 import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.services.document.XmlDocument;
-import com.example.utils.xml.services.factory.DefaultXmlFactory;
 import com.example.utils.xml.services.document.parser.FactoryDocumentBuilderProvider;
+import com.example.utils.xml.services.factory.DefaultXmlFactory;
 import com.example.utils.xml.services.factory.XmlProviders;
 import com.example.utils.xml.services.xpath.provider.FactoryXPathEvaluatorProvider;
 import lombok.val;

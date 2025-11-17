@@ -11,8 +11,8 @@ import javax.xml.parsers.DocumentBuilder;
 
 import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.exceptions.XmlException;
-import com.example.utils.xml.services.document.XmlDocumentContext;
 import com.example.utils.xml.services.document.XmlDocument;
+import com.example.utils.xml.services.document.XmlDocumentContext;
 import com.example.utils.xml.services.factory.XmlProviders;
 import lombok.AccessLevel;
 import lombok.Getter;

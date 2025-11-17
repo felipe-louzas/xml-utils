@@ -1,7 +1,7 @@
 package com.example.utils.xml.services.document;
 
-import com.example.utils.xml.services.formatter.XmlFormatter;
 import com.example.utils.xml.services.factory.XmlProviders;
+import com.example.utils.xml.services.formatter.XmlFormatter;
 import com.example.utils.xml.services.validation.XmlValidator;
 import com.example.utils.xml.services.xpath.evaluator.XPathEvaluator;
 import lombok.AccessLevel;
