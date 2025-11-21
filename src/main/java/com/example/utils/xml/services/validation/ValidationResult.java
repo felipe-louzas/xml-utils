@@ -1,43 +1,45 @@
 package com.example.utils.xml.services.validation;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public final class ValidationResult {
-	private final boolean valid;
-	private final List<ValidationProblem> problems;
+import com.example.utils.xml.services.validation.exceptions.XmlValidationException;
+import lombok.Getter;
+import lombok.Value;
 
-	public ValidationResult(boolean valid, List<ValidationProblem> problems) {
-		this.valid = valid;
-		this.problems = problems == null ? Collections.emptyList() : Collections.unmodifiableList(problems);
+@Getter
+@Value(staticConstructor = "of")
+public class ValidationResult {
+
+	public enum Severity {ERROR, WARNING, INFO}
+
+	boolean valid;
+	List<Problem> problems;
+
+	public static ValidationResult of(boolean valid, Collection<Problem> problems) {
+		return new ValidationResult(valid, List.copyOf(problems));
 	}
 
-	public boolean isValid() { return valid; }
+	public void throwIfInvalid() {
+		throwIfInvalid(XmlValidationException::new);
+	}
 
-	public List<ValidationProblem> getProblems() { return problems; }
+	public <E extends Exception> void throwIfInvalid(Supplier<E> exceptionSupplier) throws E {
+		throwIfInvalid(problems -> exceptionSupplier.get());
+	}
 
-	public static final class ValidationProblem {
-		public enum Severity {ERROR, WARNING, INFO}
+	public <E extends Exception> void throwIfInvalid(Function<List<Problem>, E> exceptionSupplier) throws E {
+		if (!isValid())
+			throw exceptionSupplier.apply(problems);
+	}
 
-		private final Severity severity;
-		private final String message;
-		private final int line;
-		private final int column;
-
-		public ValidationProblem(Severity severity, String message, int line, int column) {
-			this.severity = severity;
-			this.message = message;
-			this.line = line;
-			this.column = column;
-		}
-
-		public Severity getSeverity() { return severity; }
-
-		public String getMessage() { return message; }
-
-		public int getLine() { return line; }
-
-		public int getColumn() { return column; }
+	@Value
+	public static class Problem {
+		Severity severity;
+		String message;
+		int line;
+		int column;
 	}
 }
-

@@ -10,6 +10,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.w3c.dom.Document
 import org.xml.sax.SAXParseException
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.xml.parsers.DocumentBuilderFactory
 import java.nio.file.Files
@@ -18,7 +19,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 @DirtiesContext
-@SpringBootTest(classes = [XmlDefaultInstanceInitializer, XmlAutoConfiguration])
+@SpringBootTest(classes = [XmlDefaultInstanceInitializer, XmlAutoConfiguration], properties = [
+        "utils.xml.security.secure-processing=false",
+        "utils.xml.security.disable-dtd=false"
+])
 class XmlLoaderSpec extends Specification {
 
     Path tempFile
@@ -26,7 +30,7 @@ class XmlLoaderSpec extends Specification {
 
     def setup() {
         tempFile = Files.createTempFile("test", ".xml")
-        loader = Xml.loader()
+        loader = Xml.loader
     }
 
     def cleanup() {
@@ -114,6 +118,30 @@ class XmlLoaderSpec extends Specification {
         thrown(IllegalArgumentException)
     }
 
+    def "should throw exception when InputStream is null"() {
+        when:
+        loader.load(null as InputStream)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "should throw exception when Reader is null"() {
+        when:
+        loader.load(null as Reader)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "should throw exception when Document is null"() {
+        when:
+        loader.load(null as Document)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
     def "should throw exception when XML string is empty"() {
         when:
         loader.load("")
@@ -147,30 +175,6 @@ class XmlLoaderSpec extends Specification {
         ex.cause instanceof NoSuchFileException
     }
 
-    def "should throw exception when InputStream is null"() {
-        when:
-        loader.load(null as InputStream)
-
-        then:
-        thrown(IllegalArgumentException)
-    }
-
-    def "should throw exception when Reader is null"() {
-        when:
-        loader.load(null as Reader)
-
-        then:
-        thrown(IllegalArgumentException)
-    }
-
-    def "should throw exception when Document is null"() {
-        when:
-        loader.load(null as Document)
-
-        then:
-        thrown(IllegalArgumentException)
-    }
-
     def "should throw exception for malformed XML string"() {
         given:
         def xml = "<root><unclosed></root>"
@@ -179,7 +183,7 @@ class XmlLoaderSpec extends Specification {
         loader.load(xml)
 
         then:
-        def e = thrown(Exception)
+        def e = thrown(XmlException)
         e.message =~ /(?i)Parse|Malformed|XML/
     }
 
@@ -192,7 +196,7 @@ class XmlLoaderSpec extends Specification {
         loader.load(is)
 
         then:
-        thrown(Exception)
+        thrown(XmlException)
     }
 
     def "should throw exception for empty XML file"() {
@@ -207,5 +211,35 @@ class XmlLoaderSpec extends Specification {
         ex.cause instanceof SAXParseException
     }
 
+    @Unroll
+    def "should throw exception for XML document without root element"() {
+        given:
+        InputStream is = new ByteArrayInputStream(xml.bytes)
+
+        when:
+        loader.load(is)
+
+        then:
+        def ex = thrown(XmlException)
+        ex.cause instanceof SAXParseException
+
+        where:
+        xml << [
+                """<?xml version="1.0" encoding="UTF-8"?>""",
+                """<!-- Just a comment -->""",
+                """     \n\t     """,
+                """<!-- Comment 1 -->\n<!-- Comment 2 -->""",
+                """<!-- Comment 1 -->      <!-- Comment 2 -->""",
+                """<?processing instruction?>""",
+                """<![CDATA[ hello world ]]>""",
+                """<?xml version="1.0" encoding="UTF-8"?><![CDATA[ hello world ]]>""",
+                """<?xml version="1.0" encoding="UTF-8"?><!-- Just a comment --><![CDATA[ hello world ]]>""",
+                """<root>abc""",
+                """<?xml version="1.0" encoding="UTF-8"?><!-- Just a comment -->""",
+                """<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE note SYSTEM "Note.dtd">""",
+                """<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE note [<!ELEMENT note ANY>]>""",
+                """<!DOCTYPE note [\n<!ELEMENT note ANY>\n<!ENTITY author "John Doe">\n]>\n""",
+        ]
+    }
 }
 

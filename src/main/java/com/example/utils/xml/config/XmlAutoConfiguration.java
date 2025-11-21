@@ -1,13 +1,13 @@
 package com.example.utils.xml.config;
 
 import com.example.utils.xml.config.constants.ConfigKeys;
+import com.example.utils.xml.services.XmlService;
 import com.example.utils.xml.services.document.loader.DefaultXmlLoader;
 import com.example.utils.xml.services.document.loader.XmlLoader;
 import com.example.utils.xml.services.document.parser.DocumentBuilderProvider;
 import com.example.utils.xml.services.document.parser.FactoryDocumentBuilderProvider;
 import com.example.utils.xml.services.factory.DefaultXmlFactory;
 import com.example.utils.xml.services.factory.XmlFactory;
-import com.example.utils.xml.services.factory.XmlProviders;
 import com.example.utils.xml.services.xpath.provider.FactoryXPathEvaluatorProvider;
 import com.example.utils.xml.services.xpath.provider.XPathEvaluatorProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -47,16 +47,19 @@ public class XmlAutoConfiguration {
 	}
 
 	@Bean
-	public XmlProviders xmlProviders(XmlConfig config,
-	                                 XmlFactory factory,
-	                                 DocumentBuilderProvider documentBuilderProvider,
-	                                 XPathEvaluatorProvider xPathEvaluatorProvider) {
-		return new XmlProviders(config, factory, documentBuilderProvider, xPathEvaluatorProvider);
+	@ConditionalOnMissingBean
+	public XmlLoader xmlLoader(DocumentBuilderProvider documentBuilderProvider, XPathEvaluatorProvider xPathEvaluatorProvider) {
+		return new DefaultXmlLoader(null, documentBuilderProvider, xPathEvaluatorProvider);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public XmlLoader xmlLoader(XmlProviders providers) {
-		return new DefaultXmlLoader(providers);
+	public XmlService xmlService(XmlConfig config, XmlFactory factory, XmlLoader loader) {
+		return new XmlService(
+			config,
+			factory,
+			loader,
+			null
+		);
 	}
 }

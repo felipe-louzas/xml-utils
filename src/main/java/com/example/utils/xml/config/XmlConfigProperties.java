@@ -3,6 +3,7 @@ package com.example.utils.xml.config;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -237,35 +238,35 @@ public class XmlConfigProperties implements XmlConfig {
 
 	public static class XmlConfigPropertiesBuilder {
 
-		public XmlConfigPropertiesBuilder parserConfig(Function<ParserConfig.ParserConfigBuilder, ParserConfig.ParserConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder parserConfig(UnaryOperator<ParserConfig.ParserConfigBuilder> configurer) {
 			return parser(configurer.apply(ParserConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder cacheConfig(Function<CacheConfig.CacheConfigBuilder, CacheConfig.CacheConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder cacheConfig(UnaryOperator<CacheConfig.CacheConfigBuilder> configurer) {
 			return cache(configurer.apply(CacheConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder poolConfig(Function<PoolConfig.PoolConfigBuilder, PoolConfig.PoolConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder poolConfig(UnaryOperator<PoolConfig.PoolConfigBuilder> configurer) {
 			return pool(configurer.apply(PoolConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder formatterConfig(Function<FormatterConfig.FormatterConfigBuilder, FormatterConfig.FormatterConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder formatterConfig(UnaryOperator<FormatterConfig.FormatterConfigBuilder> configurer) {
 			return formatter(configurer.apply(FormatterConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder transformerConfig(Function<TransformerConfig.TransformerConfigBuilder, TransformerConfig.TransformerConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder transformerConfig(UnaryOperator<TransformerConfig.TransformerConfigBuilder> configurer) {
 			return transformer(configurer.apply(TransformerConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder securityConfig(Function<SecurityConfig.SecurityConfigBuilder, SecurityConfig.SecurityConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder securityConfig(UnaryOperator<SecurityConfig.SecurityConfigBuilder> configurer) {
 			return security(configurer.apply(SecurityConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder validationConfig(Function<ValidationConfig.ValidationConfigBuilder, ValidationConfig.ValidationConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder validationConfig(UnaryOperator<ValidationConfig.ValidationConfigBuilder> configurer) {
 			return validation(configurer.apply(ValidationConfig.builder()).build());
 		}
 
-		public XmlConfigPropertiesBuilder xpathConfig(Function<XPathConfig.XPathConfigBuilder, XPathConfig.XPathConfigBuilder> configurer) {
+		public XmlConfigPropertiesBuilder xpathConfig(UnaryOperator<XPathConfig.XPathConfigBuilder> configurer) {
 			return xpath(configurer.apply(XPathConfig.builder()).build());
 		}
 	}

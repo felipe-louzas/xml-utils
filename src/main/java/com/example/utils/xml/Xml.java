@@ -7,88 +7,89 @@ import java.nio.file.Path;
 
 import com.example.utils.patterns.LazyInitSingleton;
 import com.example.utils.xml.config.XmlConfig;
+import com.example.utils.xml.services.XmlService;
 import com.example.utils.xml.services.document.XmlDocument;
 import com.example.utils.xml.services.document.loader.XmlLoader;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@UtilityClass
 public final class Xml {
 
-	private static final LazyInitSingleton<Xml> DEFAULT_INSTANCE = LazyInitSingleton.of(Xml::buildDefaultInstance);
-
-	@Getter(AccessLevel.PRIVATE)
-	XmlLoader loader;
+	private final LazyInitSingleton<XmlService> DEFAULT_INSTANCE = LazyInitSingleton.of(Xml::buildDefaultInstance);
 
 	/* ------ Default instance initialization and configuration ------ */
 
-	public static void initialize(@NonNull XmlLoader loader) {
-		DEFAULT_INSTANCE.set(new Xml(loader));
+	public void initialize(@NonNull XmlService service) {
+		log.debug("Inicializando XML Utils com serviços customizados...");
+		DEFAULT_INSTANCE.set(service);
 	}
 
-	public static void configure(@NonNull XmlConfig config) {
+	public void initialize(@NonNull XmlConfig config) {
 		log.debug("Inicializando XML Utils com configuração customizada...");
-		DEFAULT_INSTANCE.set(new Xml(XmlLoader.withConfig(config)));
+		DEFAULT_INSTANCE.set(XmlService.withConfig(config));
 	}
 
-	public static void reset() {
+	public void reset() {
 		log.debug("Limpando configurações do XML Utils");
 		DEFAULT_INSTANCE.reset();
 	}
 
-	private static Xml buildDefaultInstance() {
+	private XmlService buildDefaultInstance() {
 		log.debug("Inicializando XML Utils com configuração padrão...");
-		return new Xml(XmlLoader.withConfig(XmlConfig.getDefault()));
-	}
-
-	private static Xml getDefaultInstance() {
-		return DEFAULT_INSTANCE.get();
+		return XmlService.withConfig(XmlConfig.getDefault());
 	}
 
 	/* ------ Convenience default instance delegates  ------ */
 
-	public static XmlLoader loader() {
-		return getDefaultInstance().getLoader();
+	public XmlService getService() {
+		return DEFAULT_INSTANCE.get();
 	}
 
-	public static XmlDocument load(Document document) {
-		return loader().load(document);
+	public XmlConfig getConfig() {
+		return getService().getConfig();
 	}
 
-	public static XmlDocument load(CharSequence xmlContent) {
-		return loader().load(xmlContent);
+	public XmlLoader getLoader() {
+		return getService().getLoader();
 	}
 
-	public static XmlDocument load(File file) {
-		return loader().load(file);
+	public XmlDocument load(Document document) {
+		return getLoader().load(document);
 	}
 
-	public static XmlDocument load(Path path) {
-		return loader().load(path);
+	public XmlDocument load(CharSequence xmlContent) {
+		return getLoader().load(xmlContent);
 	}
 
-	public static XmlDocument load(InputStream inputStream) {
-		return loader().load(inputStream);
+	public XmlDocument load(File file) {
+		return getLoader().load(file);
 	}
 
-	public static XmlDocument load(Reader reader) {
-		return loader().load(reader);
+	public XmlDocument load(Path path) {
+		return getLoader().load(path);
 	}
 
-	public static XmlConfig getConfig() {
-		return loader().getConfig();
+	public XmlDocument load(InputStream inputStream) {
+		return getLoader().load(inputStream);
 	}
 
-	/* ------ Create instance with independent configuration  ------ */
+	public XmlDocument load(Reader reader) {
+		return getLoader().load(reader);
+	}
 
-	public static XmlLoader loader(XmlConfig config) {
-		return new Xml(XmlLoader.withConfig(config)).getLoader();
+	/* ------ Custom instances  ------ */
+
+	public XmlService withConfig(XmlConfig config) {
+		return XmlService.withConfig(config);
+	}
+
+	public XmlLoader getLoader(XmlConfig config) {
+		return XmlService.withConfig(config).getLoader();
 	}
 }
+
+

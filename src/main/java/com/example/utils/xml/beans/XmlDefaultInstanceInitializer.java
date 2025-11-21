@@ -1,7 +1,7 @@
 package com.example.utils.xml.beans;
 
 import com.example.utils.xml.Xml;
-import com.example.utils.xml.services.document.loader.XmlLoader;
+import com.example.utils.xml.services.XmlService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AccessLevel;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class XmlDefaultInstanceInitializer {
-	XmlLoader defaultLoader;
+	XmlService defaultXmlService;
 
 	@PostConstruct
 	public void initialize() {
 		log.debug("Inicializando XML Utils com beans gerenciado pelo Spring...");
-		Xml.initialize(defaultLoader);
+		Xml.initialize(defaultXmlService);
 	}
 
 	@PreDestroy

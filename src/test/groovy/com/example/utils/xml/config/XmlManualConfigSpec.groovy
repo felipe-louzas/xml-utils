@@ -25,7 +25,7 @@ class XmlManualConfigSpec extends Specification {
                 .build()
 
         when:
-        Xml.configure(customConfig)
+        Xml.initialize(customConfig)
 
         then:
         Xml.config == customConfig
@@ -44,9 +44,9 @@ class XmlManualConfigSpec extends Specification {
                 .build()
 
         when:
-        Xml.configure(customConfig)
-        def defaultLoader = Xml.loader()
-        def customLoader = Xml.loader(otherConfig)
+        Xml.initialize(customConfig)
+        def defaultService = Xml.getService()
+        def customService = Xml.withConfig(otherConfig)
 
         then:
         Xml.config == customConfig
@@ -54,14 +54,14 @@ class XmlManualConfigSpec extends Specification {
         Xml.config != otherConfig
 
         and:
-        defaultLoader.config == customConfig
-        defaultLoader.config != XmlConfig.getDefault()
-        defaultLoader.config != otherConfig
+        defaultService.config == customConfig
+        defaultService.config != XmlConfig.getDefault()
+        defaultService.config != otherConfig
 
         and:
-        customLoader.config != customConfig
-        customLoader.config != XmlConfig.getDefault()
-        customLoader.config != Xml.config
-        customLoader.config == otherConfig
+        customService.config != customConfig
+        customService.config != XmlConfig.getDefault()
+        customService.config != Xml.config
+        customService.config == otherConfig
     }
 }

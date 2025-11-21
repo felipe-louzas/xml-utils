@@ -9,13 +9,12 @@ import java.nio.file.Path;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import com.example.utils.xml.config.XmlConfig;
 import com.example.utils.xml.exceptions.XmlException;
 import com.example.utils.xml.services.document.XmlDocument;
-import com.example.utils.xml.services.document.XmlDocumentContext;
-import com.example.utils.xml.services.factory.XmlProviders;
+import com.example.utils.xml.services.document.parser.DocumentBuilderProvider;
+import com.example.utils.xml.services.validation.XmlValidator;
+import com.example.utils.xml.services.xpath.provider.XPathEvaluatorProvider;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +23,7 @@ import lombok.val;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
 
 /**
  * Concrete XmlLoader implementation. It uses a thread-safe XmlFactory to create a per-call DocumentBuilder and parse XML from various
@@ -35,13 +35,9 @@ import org.xml.sax.InputSource;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class DefaultXmlLoader implements XmlLoader {
 
-	@Getter
-	XmlProviders providers;
-
-	@Override
-	public XmlConfig getConfig() {
-		return providers.getConfig();
-	}
+	XmlValidator xmlValidator;
+	DocumentBuilderProvider documentBuilderProvider;
+	XPathEvaluatorProvider xPathEvaluatorProvider;
 
 	@Override
 	public XmlDocument load(@NonNull CharSequence xml) {
@@ -79,16 +75,23 @@ public final class DefaultXmlLoader implements XmlLoader {
 
 	private <E extends Exception> XmlDocument parseWithBuilder(String source, FailableFunction<DocumentBuilder, Document, E> parser) {
 		try {
-			val document = providers.getDocumentBuilderProvider().parse(parser);
+			val document = documentBuilderProvider.parse(parser);
 			return createXmlDocument(document);
+
+		} catch (SAXParseException ex) {
+			log.error("SAXParseException ao criar XmlDocument a partir de {}: '{}' na linha {}, coluna {}",
+				source, ex.getMessage(), ex.getLineNumber(), ex.getColumnNumber());
+
+			val message = String.format("Erro de sintaxe no documento XML na linha %d, coluna %d.", ex.getLineNumber(), ex.getColumnNumber());
+			throw new XmlException(message, ex);
+
 		} catch (Exception ex) {
-			log.debug("Failed to parse XML from {}: {}", source, ex.getMessage());
-			throw new XmlException("Failed to parse XML from " + source, ex);
+			log.error("Erro ao criar XmlDocument a partir de {}", source, ex);
+			throw new XmlException("Não foi possível processar o documento XML. Verifique é um documento XML válido.", ex);
 		}
 	}
 
 	private XmlDocument createXmlDocument(@NonNull Document document) {
-		val context = new XmlDocumentContext(providers, document);
-		return new XmlDocument(context);
+		return new XmlDocument(document, xmlValidator, xPathEvaluatorProvider);
 	}
 }
